@@ -1,0 +1,12 @@
+*.gem
+*.rbc
+.idea
+.idea/*
+.bundle
+.config
+Gemfile.lock
+doc/
+lib/bundler/man
+pkg
+tmp
+log
