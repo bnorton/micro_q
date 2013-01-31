@@ -1,4 +1,4 @@
-# Micro::Q
+# MicroQ
 
 TODO: Write a gem description
 
@@ -6,7 +6,7 @@ TODO: Write a gem description
 
 Add this line to your application's Gemfile:
 
-    gem 'micro-q'
+    gem 'micro_q'
 
 And then execute:
 
@@ -14,7 +14,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install micro-q
+    $ gem install micro_q
 
 ## Usage
 

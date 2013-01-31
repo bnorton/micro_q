@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'micro-q/version'
+require 'micro_q/version'
 
 Gem::Specification.new do |gem|
-  gem.name          = "micro-q"
-  gem.version       = Micro::Q::VERSION
+  gem.name          = "micro_q"
+  gem.version       = MicroQ::VERSION
   gem.authors       = ["Brian Norton"]
   gem.email         = ["brian.nort@gmail.com"]
   gem.description   = ""
