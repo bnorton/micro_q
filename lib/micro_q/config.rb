@@ -4,7 +4,8 @@ module MicroQ
       @data = {
         'workers' => 3,
         'timeout' => 120,
-        'middleware' => MicroQ::Middleware::Chain
+        'interval' => 5,
+        'middleware' => MicroQ::Middleware::Chain.new
       }
     end
 

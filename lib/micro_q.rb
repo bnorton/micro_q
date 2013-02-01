@@ -1,4 +1,5 @@
 require 'celluloid'
+require 'micro_q/util'
 require 'micro_q/config'
 require 'micro_q/queue'
 
@@ -31,3 +32,4 @@ module MicroQ
 end
 
 require 'micro_q/middleware'
+require 'micro_q/worker'

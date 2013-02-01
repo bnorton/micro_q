@@ -19,11 +19,22 @@ module MicroQ
         end
 
         def add(*items)
-          items.flatten.each {|item| @entries.push(item) }
+          @entries.concat(items.flatten).uniq!
         end
 
         def remove(*items)
-          items.flatten.each {|item| @entries.delete(item) }
+          @entries.tap do
+            items.flatten.each {|item| @entries.delete(item) }
+          end
+        end
+
+        def call(*args, &block)
+          chain = (index = -1) && -> {
+            (index += 1) == entries.length ?
+              block.call : entries.at(index).new.call(*args, &chain)
+          }
+
+          chain.call
         end
       end
 
@@ -36,7 +47,6 @@ module MicroQ
       end
 
       class Client < Base
-
       end
     end
   end

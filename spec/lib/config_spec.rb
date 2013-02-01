@@ -28,12 +28,16 @@ describe MicroQ::Config do
       subject.workers.should == 3
     end
 
+    it 'should have a 5 second interval' do
+      subject.interval.should == 5
+    end
+
     it 'should have a 120 second timeout' do
       subject.timeout.should == 120
     end
 
     it 'should have middleware chain' do
-      subject.middleware.should == MicroQ::Middleware::Chain
+      subject.middleware.class.should == MicroQ::Middleware::Chain
     end
 
     it 'should not have a logfile' do

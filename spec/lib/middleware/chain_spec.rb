@@ -18,6 +18,13 @@ describe MicroQ::Middleware::Chain do
       it 'should be appended' do
         subject.entries.last.should == MyMiddleware
       end
+
+      it 'should only add unique items' do
+        subject.add MyMiddleware
+        subject.add MyMiddleware
+
+        subject.entries.uniq.should == subject.entries
+      end
     end
 
     describe '#remove' do
@@ -51,6 +58,10 @@ describe MicroQ::Middleware::Chain do
           subject.server.entries.should include(klass)
         end
       end
+
+      it 'should be 1 item long' do
+        subject.server.entries.should have(1).items
+      end
     end
   end
 
@@ -65,6 +76,39 @@ describe MicroQ::Middleware::Chain do
 
     it "should be empty" do
       subject.client.entries.should == []
+    end
+  end
+
+  describe '.call' do
+    let(:worker) { MyWorker.new }
+    let(:payload) { {'class' => 'MyWorker'} }
+
+    class MyWorker
+    end
+
+    before do
+      @retry = mock(MicroQ::Middleware::Server::Retry)
+      MicroQ::Middleware::Server::Retry.stub(:new).and_return(@retry)
+    end
+
+    describe 'server' do
+      def call
+        subject.server.call(worker, payload)
+      end
+
+      it 'should make a new middleware chain' do
+        subject.server.entries.each do |entry|
+          entry.should_receive(:new).and_return(mock('entry', :call => nil))
+        end
+
+        call
+      end
+
+      it 'should call each item' do
+        @retry.should_receive(:call).with(worker, payload)
+
+        call
+      end
     end
   end
 end
