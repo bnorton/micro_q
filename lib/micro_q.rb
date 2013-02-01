@@ -2,6 +2,7 @@ require 'celluloid'
 require 'micro_q/util'
 require 'micro_q/config'
 require 'micro_q/queue'
+require 'micro_q/manager'
 
 module MicroQ
   def self.config
