@@ -21,6 +21,12 @@ describe MicroQ do
     end
   end
 
+  describe '.middleware' do
+    it 'should alias the middleware on the config' do
+      MicroQ.middleware.should == MicroQ.config.middleware
+    end
+  end
+
   describe '.start' do
     def start
       MicroQ.start

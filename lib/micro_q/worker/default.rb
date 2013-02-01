@@ -10,7 +10,7 @@ module MicroQ
 
         value = nil
 
-        MicroQ.config.middleware.server.call(klass, worker) do
+        MicroQ.middleware.server.call(klass, worker) do
           value = klass.send(method, *args)
         end
 

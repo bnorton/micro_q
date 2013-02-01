@@ -12,6 +12,10 @@ module MicroQ
     yield config
   end
 
+  def self.middleware
+    config.middleware
+  end
+
   def self.start
     default
   end

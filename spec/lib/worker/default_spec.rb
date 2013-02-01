@@ -27,7 +27,7 @@ describe MicroQ::Worker::Default do
     end
 
     it 'should process the middleware chain' do
-      MicroQ.config.middleware.server.should_receive(:call) do |w, payload|
+      MicroQ.middleware.server.should_receive(:call) do |w, payload|
         w.class.should == MyWorker
 
         payload['class'].should == 'MyWorker'
@@ -38,7 +38,7 @@ describe MicroQ::Worker::Default do
     end
 
     it 'should process the middleware chain for both workers' do
-      MicroQ.config.middleware.server.should_receive(:call) do |w, payload|
+      MicroQ.middleware.server.should_receive(:call) do |w, payload|
         w.class.should == MyWorker
 
         payload['class'].should == 'MyWorker'
