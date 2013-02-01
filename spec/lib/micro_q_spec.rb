@@ -33,41 +33,46 @@ describe MicroQ do
     end
 
     before do
-      @queue = mock(MicroQ::Queue::Default, :start => nil)
-      MicroQ::Queue::Default.stub(:new).and_return(@queue)
+      @manager = mock(MicroQ::Manager::Default, :start! => nil)
+      MicroQ::Manager::Default.stub(:new).and_return(@manager)
     end
 
     it 'should create a queue' do
-      MicroQ::Queue::Default.should_receive(:new).and_return(@queue)
+      MicroQ::Manager::Default.should_receive(:new).and_return(@manager)
 
       start
     end
 
     it 'should cache the queue' do
-      MicroQ::Queue::Default.should_receive(:new).once.and_return(@queue)
+      MicroQ::Manager::Default.should_receive(:new).once.and_return(@manager)
 
-      2.times { start }
+      3.times { start }
+    end
+
+    it 'should asynchronously start the manager (once)' do
+      @manager.should_receive(:start!).once
+
+      start
     end
   end
 
   describe '.push' do
-    let(:args) { { 'class' => 'WorkerClass' } }
+    let(:args) { [{ :class => 'WorkerClass' }, { :option => 'value' }] }
 
     def push
-      MicroQ.push(args)
+      MicroQ.push(*args)
     end
 
     before do
-      @async = mock(Celluloid::ActorProxy)
-      @queue = mock(MicroQ::Queue::Default, :run => nil, :async => @async)
-
-      MicroQ::Queue::Default.stub(:new).and_return(@queue)
+      @async = mock(Celluloid::AsyncProxy)
+      @manager = mock(MicroQ::Manager::Default, :start! => nil, :queue => mock("Queue", :async => @async))
+      MicroQ::Manager::Default.stub(:new).and_return(@manager)
 
       MicroQ.start
     end
 
-    it 'should delegate to the default queue' do
-      @async.should_receive(:push).with([args])
+    it 'should delegate to the manager\'s queue' do
+      @async.should_receive(:push).with(*args)
 
       push
     end

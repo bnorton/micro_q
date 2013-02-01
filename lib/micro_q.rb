@@ -18,21 +18,26 @@ module MicroQ
   end
 
   def self.start
-    default
+    manager
   end
 
   def self.push(*args)
-    default.async.push(args.flatten)
+    manager.queue.async.push(*args)
   end
 
   private
 
-  def self.clear
-    @config = @default = nil
+  def self.manager
+    @manager ||= begin
+      Manager::Default.new.tap do |manager|
+        manager.start!
+      end
+    end
+
   end
 
-  def self.default
-    @default ||= Queue::Default.new
+  def self.clear
+    @config = @manager = nil
   end
 end
 
