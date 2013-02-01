@@ -23,13 +23,37 @@ describe MicroQ::Queue::Default do
     end
 
     it 'should duplicate the item' do
-      item.should_receive(:dup)
-
       subject.push(item)
+
+      before = item.dup
+      subject.entries.should include(before)
+
+      item[:key] = 'new-value'
+      subject.entries.should_not include(item)
+      subject.entries.should include(before)
     end
 
     describe 'when given the "when" key' do
       let(:worker) { [item, { 'when' => (Time.now + 100).to_i }] }
+
+      it 'should add to the later' do
+        subject.push(*worker)
+
+        subject.later.should include(
+          'when' => (Time.now + 100).to_i,
+          'worker' => item
+        )
+      end
+
+      it 'should not be in the entries' do
+        subject.push(*worker)
+
+        subject.entries.should == []
+      end
+    end
+
+    describe 'when given the symbol :when key' do
+      let(:worker) { [item, { :when => (Time.now + 100).to_i }] }
 
       it 'should add to the later' do
         subject.push(*worker)
