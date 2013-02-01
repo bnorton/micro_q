@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe MicroQ::Worker::Default do
+describe MicroQ::Worker::Standard do
   let(:worker) { {'class' => 'MyWorker', 'args' => [1, 'value']} }
   let(:other_worker) { {'class' => 'MyWorker', 'method' => 'process', 'args' => [2, 'other-value']} }
 

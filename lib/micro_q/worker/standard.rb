@@ -1,6 +1,6 @@
 module MicroQ
   module Worker
-    class Default
+    class Standard
       include Celluloid
 
       def perform(worker)

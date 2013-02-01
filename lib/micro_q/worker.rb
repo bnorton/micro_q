@@ -1,1 +1,1 @@
-require 'micro_q/worker/default'
+require 'micro_q/worker/standard'
