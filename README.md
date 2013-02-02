@@ -1,6 +1,8 @@
 # MicroQ
 
-TODO: Write a gem description
+MicroQ is an extremely easy to use per-process asynchronous background queue.
+
+It's simple startup and intuitive interface makes it the best choice for new and lagacy apps.
 
 ## Installation
 
