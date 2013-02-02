@@ -1,7 +1,6 @@
 require 'celluloid'
 require 'micro_q/util'
 require 'micro_q/config'
-require 'micro_q/queue'
 require 'micro_q/manager'
 
 module MicroQ
@@ -33,7 +32,6 @@ module MicroQ
         manager.start!
       end
     end
-
   end
 
   def self.clear
@@ -43,3 +41,4 @@ end
 
 require 'micro_q/middleware'
 require 'micro_q/worker'
+require 'micro_q/queue'

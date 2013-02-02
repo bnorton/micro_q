@@ -1,19 +1,28 @@
 module MicroQ
   module Middleware
     module Server
+      ##
+      # Capture, re-raise and potentially push a modified message
+      # back onto the queue. We add metadata about the retry into the
+      # 'retried' key to track the attempts.
+      #
+      # count: The number of retires thus far
+      # at:    When the last retry occurred
+      # when:  The time at which the message will be retried again
+      #
       class Retry
-        def call(worker, payload)
+        def call(worker, message)
           yield
         rescue Exception => e
-          raise e unless payload['retry']
+          raise e unless message['retry']
 
-          payload['retried'] ||= { 'count' => 0 }
+          message['retried'] ||= { 'count' => 0 }
 
-          payload['retried']['count'] += 1
-          payload['retried']['at']    = Time.now
-          payload['retried']['when']  = (Time.now + 15).to_f
+          message['retried']['count'] += 1
+          message['retried']['at']    = Time.now
+          message['retried']['when']  = (Time.now + 15).to_f
 
-          MicroQ.push(payload, payload['retried'])
+          MicroQ.push(message, message['retried'])
 
           raise
         end
