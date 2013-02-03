@@ -8,7 +8,7 @@ It's simple startup and intuitive interface makes it the best choice for new and
 
 Add this line to your Gemfile:
 
-    `gem 'micro_q'`
+    gem 'micro_q'
 
     $ bundle
 
