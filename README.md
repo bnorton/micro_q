@@ -1,20 +1,18 @@
 # MicroQ
 
-MicroQ is an extremely easy to use per-process asynchronous background queue.
+MicroQ is a per-process asynchronous background queue.
 
 It's simple startup and intuitive interface makes it the best choice for new and lagacy apps.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your Gemfile:
 
-    gem 'micro_q'
-
-And then execute:
+    `gem 'micro_q'`
 
     $ bundle
 
-Or install it yourself as:
+Or install it:
 
     $ gem install micro_q
 
