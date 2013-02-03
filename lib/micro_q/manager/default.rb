@@ -1,7 +1,7 @@
 module MicroQ
   module Manager
     ##
-    # The default anager implementation.
+    # The default manager implementation.
     # Wrapper for a Queue and a pool of Workers. At each time slice
     # after start! was called, try to dequeue messages from the queue.
     # Perform each message on the worker pool.
