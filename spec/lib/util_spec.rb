@@ -55,10 +55,10 @@ describe MicroQ::Util do
     end
 
     it 'should require the file' do
-      defined?(Benchmark).should == nil
-      req('benchmark')
+      defined?(CMath).should == nil
+      req('cmath')
 
-      defined?(Benchmark).should == 'constant'
+      defined?(CMath).should == 'constant'
     end
 
     describe 'when the library is not available' do
