@@ -4,9 +4,8 @@ module MicroQ
       extend MicroQ::Methods::SharedMethods
 
       def async
-        MicroQ::Proxy::Class.new(:class => self)
+        MicroQ::Proxy::Class.new(:class => self, :loader => {})
       end
-
     end
   end
 end

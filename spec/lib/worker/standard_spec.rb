@@ -5,17 +5,10 @@ describe MicroQ::Worker::Standard do
   let(:other_worker) { {'class' => 'MyWorker', 'method' => 'process', 'args' => [2, 'other-value']} }
 
   class MyWorker
-    def ar_perform(*args)
-      "AR PERFORM! #{args.inspect}"
-    end
-
-    def perform(*args)
-      "PERFORMED! #{args.inspect}"
-    end
-
-    def process(*args)
-      "PROCESSED! #{args.inspect}"
-    end
+    def self.seed(*args); "SEEDED #{args.inspect}" end
+    def ar_perform(*args);"AR PERFORM! #{args.inspect}" end
+    def perform(*args);   "PERFORMED! #{args.inspect}" end
+    def process(*args);   "PROCESSED! #{args.inspect}" end
   end
 
   describe '#perform' do
@@ -50,7 +43,21 @@ describe MicroQ::Worker::Standard do
       perform(other_worker)
     end
 
-    describe 'when model has a \'loader\'' do
+    describe 'when using the class loader' do
+      let(:class_worker) { {'class' => 'MyWorker', 'method' => 'seed', 'args' => [3, 45], 'loader' => {}} }
+
+      it 'should not create an instance' do
+        MyWorker.should_not_receive(:new)
+
+        perform(class_worker)
+      end
+
+      it 'should call the method' do
+        perform(class_worker).should == "SEEDED [3, 45]"
+      end
+    end
+
+    describe 'when the model has a custom \'loader\'' do
       let(:ar_worker) { {'class' => 'MyWorker', 'method' => 'ar_perform', 'args' => [1, 2], 'loader' => {'method' => 'find', 'args' => [456]}} }
 
       before do

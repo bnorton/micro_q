@@ -20,7 +20,9 @@ module MicroQ
 
       def perform(message)
         klass = MicroQ::Util.constantize(message['class'].to_s)
-        klass = (loader = message['loader']) ? klass.send(loader['method'], *loader['args']) : klass.new
+
+        loader = message['loader'] ||= { 'method' => 'new' }
+        klass = klass.send(loader['method'], *loader['args']) if loader['method']
 
         method = message['method'] || 'perform'
         args = message['args']
