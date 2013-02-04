@@ -3,7 +3,7 @@ require 'spec_helper'
 describe MicroQ::Middleware::Server::Retry, :middleware => true do
   describe '#call' do
     let(:foo) { mock("Foo", :bar => nil) }
-    let(:block) { lambda { foo.bar } }
+    let(:block) { -> { foo.bar } }
 
     def call
       subject.call @worker, @payload, &block

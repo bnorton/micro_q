@@ -205,14 +205,14 @@ describe MicroQ::Middleware::Chain do
     end
 
     describe 'defaults' do
-      [MicroQ::Middleware::Server::Retry].each do |klass|
+      [MicroQ::Middleware::Server::Retry, MicroQ::Middleware::Server::Connection].each do |klass|
         it "should include #{klass}" do
           subject.server.entries.should include(klass)
         end
       end
 
-      it 'should be 1 item long' do
-        subject.server.entries.should have(1).items
+      it 'should be 2 items long' do
+        subject.server.entries.should have(2).items
       end
     end
   end
@@ -238,26 +238,37 @@ describe MicroQ::Middleware::Chain do
     class MyWorker
     end
 
-    before do
-      @retry = mock(MicroQ::Middleware::Server::Retry)
-      MicroQ::Middleware::Server::Retry.stub(:new).and_return(@retry)
-    end
-
     describe 'server' do
       def call
-        subject.server.call(worker, payload)
+        subject.server.call(worker, payload) { }
       end
 
-      it 'should make a new middleware chain' do
-        subject.server.entries.each do |entry|
-          entry.should_receive(:new).and_return(mock('entry', :call => nil))
-        end
+      it 'should make a new retry instance' do
+        MicroQ::Middleware::Server::Retry.should_receive(:new).and_call_original
 
         call
       end
 
-      it 'should call each item' do
+      it 'should make a new connections instance' do
+        MicroQ::Middleware::Server::Connection.should_receive(:new).and_call_original
+
+        call
+      end
+
+      it 'should call the retry middleware' do
+        @retry = mock(MicroQ::Middleware::Server::Retry)
+        MicroQ::Middleware::Server::Retry.stub(:new).and_return(@retry)
+
         @retry.should_receive(:call).with(worker, payload)
+
+        call
+      end
+
+      it 'should call the connection middleware' do
+        @connection = mock(MicroQ::Middleware::Server::Connection)
+        MicroQ::Middleware::Server::Connection.stub(:new).and_return(@connection)
+
+        @connection.should_receive(:call).with(worker, payload)
 
         call
       end

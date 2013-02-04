@@ -1,4 +1,5 @@
 require 'micro_q/middleware/server/retry'
+require 'micro_q/middleware/server/connection'
 
 module MicroQ
   module Middleware
@@ -90,7 +91,8 @@ module MicroQ
       class Server < Base
         def initialize
           @entries = [
-            MicroQ::Middleware::Server::Retry
+            MicroQ::Middleware::Server::Retry,
+            MicroQ::Middleware::Server::Connection
           ]
         end
       end
