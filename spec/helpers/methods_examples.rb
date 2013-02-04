@@ -38,7 +38,7 @@ shared_examples_for "a_worker" do |method|
       it 'should raise an undefined method error (without the _async)' do
         ex = (begin; subject.send("some_method_async"); rescue => e; e end)
 
-        ex.message.should match(/undefined method \`some_method_async\' for/)
+        ex.message.should match(/undefined method \`some_method_async\'/)
       end
     end
   end
