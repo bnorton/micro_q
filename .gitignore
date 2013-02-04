@@ -4,6 +4,7 @@
 .idea/*
 .bundle
 .config
+*.db
 Gemfile.lock
 doc/
 lib/bundler/man

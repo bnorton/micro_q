@@ -1,7 +1,7 @@
 module MicroQ
   module Util
     ##
-    # Stolen from active_support/inflector/inflections.
+    # Stolen from active_support/inflector/inflections with a rescue to nil.
     #
     def self.constantize(word)
       names = word.split('::')
@@ -12,6 +12,18 @@ module MicroQ
         constant = constant.const_defined?(name, false) ? constant.const_get(name) : constant.const_missing(name)
       end
       constant
+    rescue
+      nil
+    end
+
+    def self.stringify_keys(hash)
+      {}.tap do |result|
+        hash.keys.each do |key|
+          value = hash[key]
+
+          result[key.to_s] = value.is_a?(Hash) ? stringify_keys(value) : value
+        end
+      end
     end
   end
 end

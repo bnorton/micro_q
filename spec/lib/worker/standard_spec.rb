@@ -5,7 +5,9 @@ describe MicroQ::Worker::Standard do
   let(:other_worker) { {'class' => 'MyWorker', 'method' => 'process', 'args' => [2, 'other-value']} }
 
   class MyWorker
-    attr_reader :performed, :processed
+    def ar_perform(*args)
+      "AR PERFORM! #{args.inspect}"
+    end
 
     def perform(*args)
       "PERFORMED! #{args.inspect}"
@@ -46,6 +48,34 @@ describe MicroQ::Worker::Standard do
       end
 
       perform(other_worker)
+    end
+
+    describe 'when model has a \'loader\'' do
+      let(:ar_worker) { {'class' => 'MyWorker', 'method' => 'ar_perform', 'args' => [1, 2], 'loader' => {'method' => 'find', 'args' => [456]}} }
+
+      before do
+        @model = mock("Model", :ar_perform => nil)
+        MyWorker.stub(:find).with(456).and_return(@model)
+      end
+
+      it 'should load the class' do
+        MyWorker.should_receive(:find).with(456).and_return(@model)
+
+        perform(ar_worker)
+      end
+
+      it 'should call the method a' do
+        @model.should_receive(:ar_perform).with(1, 2)
+
+        perform(ar_worker)
+      end
+
+      it 'should call the method b' do
+        worker = MyWorker.new
+        MyWorker.stub(:find).with(456).and_return(worker)
+
+        perform(ar_worker).should == 'AR PERFORM! [1, 2]'
+      end
     end
   end
 end

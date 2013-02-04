@@ -24,7 +24,7 @@ module MicroQ
 
           MicroQ.push(message, message['retried'])
 
-          raise
+          raise e
         end
       end
     end

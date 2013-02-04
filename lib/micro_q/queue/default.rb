@@ -39,7 +39,7 @@ module MicroQ
       # Options:
       #   when: The time/timestamp after which to run the message.
       #
-      def push(item, options = {})
+      def push(item, options={})
         item, options = before_push(item, options)
 
         if (time = options['when'])
@@ -81,11 +81,9 @@ module MicroQ
       # Duplicate the given items and stringify the keys.
       #
       def before_push(args, options)
-        [args, options].collect do |type|
-          type.each_with_object({}) do |(k, v), hash|
-            hash[k.to_s] = v
-          end
-        end
+        [MicroQ::Util.stringify_keys(args),
+         MicroQ::Util.stringify_keys(options)
+        ]
       end
     end
   end

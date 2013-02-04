@@ -19,7 +19,9 @@ module MicroQ
       include Celluloid
 
       def perform(message)
-        klass = MicroQ::Util.constantize(message['class']).new
+        klass = MicroQ::Util.constantize(message['class'].to_s)
+        klass = (loader = message['loader']) ? klass.send(loader['method'], *loader['args']) : klass.new
+
         method = message['method'] || 'perform'
         args = message['args']
 

@@ -18,7 +18,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_dependency             "celluloid"
-  gem.add_development_dependency "rake" # for Travis-CI
+  gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "timecop"
+  gem.add_development_dependency "psych"
+  gem.add_development_dependency "activerecord", "> 3.2.0"
+  gem.add_development_dependency "sqlite3-ruby"
 end
