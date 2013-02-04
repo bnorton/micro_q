@@ -1,4 +1,4 @@
-# MicroQ
+# MicroQ [![Build Status](https://travis-ci.org/bnorton/micro_q.png)](https://travis-ci.org/bnorton/micro_q)
 
 MicroQ is a per-process asynchronous background queue.
 
