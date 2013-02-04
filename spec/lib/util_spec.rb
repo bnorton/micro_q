@@ -48,4 +48,29 @@ describe MicroQ::Util do
       }
     end
   end
+
+  describe '.safe_require' do
+    def req(lib)
+      MicroQ::Util.safe_require(lib)
+    end
+
+    it 'should require the file' do
+      defined?(Benchmark).should == nil
+      req('benchmark')
+
+      defined?(Benchmark).should == 'constant'
+    end
+
+    describe 'when the library is not available' do
+      it 'should not error' do
+        expect {
+          req('foo-bar-baz')
+        }.not_to raise_error
+      end
+
+      it 'should be nil' do
+        req('foo-bar-baz').should == nil
+      end
+    end
+  end
 end

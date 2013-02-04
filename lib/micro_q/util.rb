@@ -13,7 +13,6 @@ module MicroQ
       end
       constant
     rescue
-      nil
     end
 
     def self.stringify_keys(hash)
@@ -24,6 +23,11 @@ module MicroQ
           result[key.to_s] = value.is_a?(Hash) ? stringify_keys(value) : value
         end
       end
+    end
+
+    def self.safe_require(lib)
+      require lib
+    rescue LoadError
     end
   end
 end
