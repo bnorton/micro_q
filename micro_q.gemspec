@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.name          = "micro_q"
   gem.version       = MicroQ::VERSION
   gem.authors       = ["Brian Norton"]
-  gem.email         = ["brian.nort@gmail.com"]
+  gem.email         = "brian.nort@gmail.com"
   gem.description   = ""
   gem.summary       = ""
   gem.homepage      = "http://github.com/bnorton/micro-q"
@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^spec/})
-  gem.require_paths = ["lib"]
+  gem.require_paths = %w(lib)
 
   gem.add_dependency             "celluloid"
   gem.add_development_dependency "rake"

@@ -42,13 +42,15 @@ module MicroQ
       def push(item, options={})
         item, options = before_push(item, options)
 
-        if (time = options['when'])
-          @later.push(
-            'when' => time.to_f,
-            'worker' => item
-          )
-        else
-          @entries.push(item)
+        MicroQ.middleware.client.call(item['class'], item, options) do
+          if (time = options['when'])
+            @later.push(
+              'when' => time.to_f,
+              'worker' => item
+            )
+          else
+            @entries.push(item)
+          end
         end
       end
 

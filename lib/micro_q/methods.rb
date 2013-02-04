@@ -4,7 +4,7 @@ module MicroQ
       def method_missing(method, *other)
         super unless /((.+)\_async$)/ === method
 
-        name = $2 && $2.to_sym
+        name = $2
 
         # Define the method and call through.
         if name && respond_to?(name)
@@ -23,3 +23,4 @@ end
 
 require 'micro_q/methods/class'
 require 'micro_q/methods/instance'
+require 'micro_q/methods/active_record'

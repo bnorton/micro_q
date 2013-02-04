@@ -16,6 +16,7 @@ module MicroQ
   end
 end
 
+MicroQ::Util.safe_require 'active_record'
 if defined?(ActiveRecord::Base)
   ActiveRecord::Base.send(:include, MicroQ::Methods::ActiveRecord)
 end

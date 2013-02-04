@@ -14,7 +14,7 @@ describe MicroQ::Queue::Default do
   end
 
   describe '#push' do
-    let(:item) { { 'class' => 'MyWorker', 'args' => [] } }
+    let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
 
     it 'should add to the entries' do
       subject.push(item)
@@ -33,6 +33,19 @@ describe MicroQ::Queue::Default do
       subject.entries.should include(before)
     end
 
+    describe 'client middleware' do
+      it 'should process the middleware chain' do
+        MicroQ.middleware.client.should_receive(:call) do |w, payload|
+          w.should == 'MyWorker'
+
+          payload['class'].should == 'MyWorker'
+          payload['args'].should == [4]
+        end
+
+        subject.push(item)
+      end
+    end
+
     describe 'when given the "when" key' do
       let(:worker) { [item, { 'when' => (Time.now + 100).to_i }] }
 
@@ -49,6 +62,18 @@ describe MicroQ::Queue::Default do
         subject.push(*worker)
 
         subject.entries.should == []
+      end
+
+      it 'should process the middleware chain' do
+        MicroQ.middleware.client.should_receive(:call) do |w, payload, options|
+          w.should == 'MyWorker'
+
+          payload['class'].should == 'MyWorker'
+          payload['args'].should == [4]
+          options['when'].should == (Time.now + 100).to_i
+        end
+
+        subject.push(*worker)
       end
     end
 
