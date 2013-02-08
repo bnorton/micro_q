@@ -32,7 +32,7 @@ module MicroQ
       end
 
       ##
-      # Synchronously push a message item to the queue.
+      # Asynchronously push a message item to the queue.
       #
       def push(item, options={})
         async.sync_push(item, options)
