@@ -13,17 +13,17 @@ describe MicroQ::Queue::Default do
     end
   end
 
-  describe '#push' do
+  describe '#sync_push' do
     let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
 
     it 'should add to the entries' do
-      subject.push(item)
+      subject.sync_push(item)
 
       subject.entries.should include(item)
     end
 
     it 'should duplicate the item' do
-      subject.push(item)
+      subject.sync_push(item)
 
       before = item.dup
       subject.entries.should include(before)
@@ -42,7 +42,7 @@ describe MicroQ::Queue::Default do
           payload['args'].should == [4]
         end
 
-        subject.push(item)
+        subject.sync_push(item)
       end
     end
 
@@ -50,7 +50,7 @@ describe MicroQ::Queue::Default do
       let(:worker) { [item, { 'when' => (Time.now + 100).to_i }] }
 
       it 'should add to the later' do
-        subject.push(*worker)
+        subject.sync_push(*worker)
 
         subject.later.should include(
           'when' => (Time.now + 100).to_i,
@@ -59,7 +59,7 @@ describe MicroQ::Queue::Default do
       end
 
       it 'should not be in the entries' do
-        subject.push(*worker)
+        subject.sync_push(*worker)
 
         subject.entries.should == []
       end
@@ -73,7 +73,7 @@ describe MicroQ::Queue::Default do
           options['when'].should == (Time.now + 100).to_i
         end
 
-        subject.push(*worker)
+        subject.sync_push(*worker)
       end
     end
 
@@ -81,7 +81,7 @@ describe MicroQ::Queue::Default do
       let(:worker) { [item, { :when => (Time.now + 100).to_i }] }
 
       it 'should add to the later' do
-        subject.push(*worker)
+        subject.sync_push(*worker)
 
         subject.later.should include(
           'when' => (Time.now + 100).to_i,
@@ -90,10 +90,25 @@ describe MicroQ::Queue::Default do
       end
 
       it 'should not be in the entries' do
-        subject.push(*worker)
+        subject.sync_push(*worker)
 
         subject.entries.should == []
       end
+    end
+  end
+
+  describe '#push' do
+    let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
+
+    before do
+      @async = mock(Celluloid::ActorProxy)
+      subject.stub(:async).and_return(@async)
+    end
+
+    it 'should asynchronously push the item' do
+      @async.should_receive(:sync_push).with(*item)
+
+      subject.push(*item)
     end
   end
 
@@ -107,7 +122,7 @@ describe MicroQ::Queue::Default do
 
     describe 'when there are entries' do
       before do
-        subject.push(item)
+        subject.sync_push(item)
       end
 
       it 'should return the item' do
@@ -123,7 +138,7 @@ describe MicroQ::Queue::Default do
 
     describe 'when there are items to be processed later' do
       before do
-        subject.push(item, 'when' => (Time.now + 5).to_i)
+        subject.sync_push(item, 'when' => (Time.now + 5).to_i)
       end
 
       it 'should not return the item' do
@@ -162,10 +177,10 @@ describe MicroQ::Queue::Default do
       end
 
       before do
-        items.first(4).each {|item| subject.push(item) }
-        subject.push(items.last, 'when' => (Time.now - 2).to_i)
+        items.first(4).each {|item| subject.sync_push(item) }
+        subject.sync_push(items.last, 'when' => (Time.now - 2).to_i)
 
-        subject.push(*later_item)
+        subject.sync_push(*later_item)
       end
 
       it 'should return all the available items' do

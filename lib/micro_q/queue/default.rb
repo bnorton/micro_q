@@ -10,8 +10,8 @@ module MicroQ
     # item = { 'class' => 'MyWorker', 'args' => [user.id] }
     #
     # queue = MicroQ::Queue::Default.new
-    # queue.push(item)       # synchronous push
-    # queue.async.push(item) # asynchronous push (preferred)
+    # queue.push(item)       # asynchronous push (preferred)
+    # queue.sync_push(item)  # synchronous push
     #
     # queue.entries
     # #=> [{'class' => 'MyWorker', 'args' => [32]}]
@@ -32,14 +32,21 @@ module MicroQ
       end
 
       ##
-      # Push a message item to the queue.
+      # Synchronously push a message item to the queue.
+      #
+      def push(item, options={})
+        async.sync_push(item, options)
+      end
+
+      ##
+      # Synchronously push a message item to the queue.
       # Either push it to the immediate portion of the queue or store it for after when
       # it should be run with the 'when' option.
       #
       # Options:
       #   when: The time/timestamp after which to run the message.
       #
-      def push(item, options={})
+      def sync_push(item, options={})
         item, options = before_push(item, options)
 
         MicroQ.middleware.client.call(item['class'], item, options) do

@@ -64,15 +64,14 @@ describe MicroQ do
     end
 
     before do
-      @async = mock(Celluloid::AsyncProxy)
-      @manager = mock(MicroQ::Manager::Default, :start! => nil, :queue => mock("Queue", :async => @async))
+      @manager = mock(MicroQ::Manager::Default, :start! => nil, :queue => mock("Queue"))
       MicroQ::Manager::Default.stub(:new).and_return(@manager)
 
       MicroQ.start
     end
 
     it 'should delegate to the manager\'s queue' do
-      @async.should_receive(:push).with(*args)
+      @manager.queue.should_receive(:push).with(*args)
 
       push
     end

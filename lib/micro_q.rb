@@ -21,7 +21,7 @@ module MicroQ
   end
 
   def self.push(*args)
-    manager.queue.async.push(*args)
+    manager.queue.push(*args)
   end
 
   private
