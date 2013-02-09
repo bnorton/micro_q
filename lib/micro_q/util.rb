@@ -15,6 +15,10 @@ module MicroQ
     rescue
     end
 
+    ##
+    # Copy a hash and convert all keys to strings.
+    # Stringifies to infinite hash depth
+    #
     def self.stringify_keys(hash)
       {}.tap do |result|
         hash.keys.each do |key|
@@ -25,6 +29,9 @@ module MicroQ
       end
     end
 
+    ##
+    # Attempt to load a library but return nil if it cannot be loaded
+    #
     def self.safe_require(lib)
       require lib
     rescue LoadError
