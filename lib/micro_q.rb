@@ -28,7 +28,7 @@ module MicroQ
 
   def self.manager
     @manager ||= begin
-      Manager::Default.new.tap do |manager|
+      config.manager.new.tap do |manager|
         manager.start!
       end
     end

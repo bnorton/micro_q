@@ -12,5 +12,6 @@ require 'micro_q/manager/default'
 #
 # Note that the default manager is a celluloid actor that reschedules
 # itself (via the after(seconds) { start }) call which is a recursive
-# call that executes asynchronously. This behavior is critical.
+# call that executes asynchronously. This behavior is critical and
+# therefore the class must `include Celluloid`.
 #

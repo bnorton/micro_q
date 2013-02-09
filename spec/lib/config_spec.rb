@@ -43,5 +43,17 @@ describe MicroQ::Config do
     it 'should not have a logfile' do
       subject.logfile.should == nil
     end
+
+    it 'should have the default queue' do
+      subject.manager.should == MicroQ::Manager::Default
+    end
+
+    it 'should have the default queue' do
+      subject.queue.should == MicroQ::Queue::Default
+    end
+
+    it 'should have the standard worker' do
+      subject.worker.should == MicroQ::Worker::Standard
+    end
   end
 end

@@ -20,8 +20,8 @@ module MicroQ
       attr_reader :queue, :workers
 
       def initialize
-        @queue   = MicroQ::Queue::Default.new
-        @workers = MicroQ::Worker::Standard.pool(:size => MicroQ.config.workers)
+        @queue   = MicroQ.config.queue.new
+        @workers = MicroQ.config.worker.pool(:size => MicroQ.config.workers)
       end
 
       def start
