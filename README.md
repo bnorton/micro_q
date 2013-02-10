@@ -18,6 +18,38 @@ Or install it:
 
 ## Usage
 
+```ruby
+# A typical worker
+class MyWorker
+  def perform
+    # do some performing here
+  end
+
+  def update(options = {})
+    # do some updating
+   end
+end
+```
+
+###Simple (default)
+
+```ruby
+# Using the async proxy API
+MyWorker.async.perform
+
+MyWorker.async.update(:user_id => user.id)
+
+# Through the raw push API
+MicroQ.push(:class => 'MyWorker') # Defaults to the perform method
+
+# With a custom method
+MicroQ.push(:class => 'MyWorker', :method => 'update', :args => [{:user_id => user.id}])
+```
+
+###Advanced
+
+###Custom Loaders
+
 ## Contributing
 
 1. Fork it
