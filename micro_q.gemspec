@@ -23,5 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "timecop"
   gem.add_development_dependency "psych"
   gem.add_development_dependency "activerecord", "> 3.2.0"
+  gem.add_development_dependency "actionmailer", "> 3.2.0"
   gem.add_development_dependency "sqlite3-ruby"
 end

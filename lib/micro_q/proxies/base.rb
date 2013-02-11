@@ -18,11 +18,11 @@ module MicroQ
         @method = meth.to_s
         @args = args
 
-        defaults = [@options.merge(
+        defaults = [{
           :class => klass,
           :method => method,
           :args => args
-        )]
+        }.merge(@options)]
 
         defaults << { :when => at } if at
 

@@ -18,7 +18,7 @@ describe MicroQ::Methods::ActiveRecord, :active_record => true do
       MicroQ::Proxy::Instance.stub(:new).and_return(@proxy)
     end
 
-    it 'should create a proxy' do
+    it 'should create an instance proxy' do
       MicroQ::Proxy::Instance.should_receive(:new).and_return(@proxy)
 
       method.call
