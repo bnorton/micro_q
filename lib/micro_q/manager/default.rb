@@ -25,7 +25,9 @@ module MicroQ
       end
 
       def start
-        if (messages = queue.dequeue).any?
+        count = workers.idle_size
+
+        if (messages = queue.dequeue(count)).any?
           messages.each do |message|
             workers.perform!(message)
           end

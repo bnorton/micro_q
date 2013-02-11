@@ -53,8 +53,14 @@ describe MicroQ::Manager::Default do
         @queue = mock(MicroQ::Queue::Default, :dequeue => [@item, @other_item])
         MicroQ::Queue::Default.stub(:new).and_return(@queue)
 
-        @pool = mock(Celluloid::PoolManager)
+        @pool = mock(Celluloid::PoolManager, :idle_size => 1234, :perform! => nil)
         MicroQ::Worker::Standard.stub(:pool).and_return(@pool)
+      end
+
+      it 'should dequeue the number of free workers' do
+        @queue.should_receive(:dequeue).with(1234)
+
+        subject.start
       end
 
       it 'should perform the items' do

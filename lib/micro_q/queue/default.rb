@@ -66,6 +66,8 @@ module MicroQ
       # Optionally give a limit and return only limit number of messages
       #
       def dequeue(limit = 30)
+        return [] if limit == 0
+
         idx = 0
         [].tap do |items|
           entries.each do |entry|
