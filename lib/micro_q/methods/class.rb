@@ -9,8 +9,6 @@ module MicroQ
     # message invocation
     #
     module Class
-      extend MicroQ::Methods::SharedMethods
-
       def async
         MicroQ::Proxy::Class.new(:class => self, :loader => {})
       end

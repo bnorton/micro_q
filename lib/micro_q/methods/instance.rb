@@ -11,8 +11,6 @@ module MicroQ
     # what the default worker does.
     #
     module Instance
-      include MicroQ::Methods::SharedMethods
-
       def async
         MicroQ::Proxy::Instance.new(:class => self.class)
       end

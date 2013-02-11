@@ -53,12 +53,6 @@ describe MicroQ::Methods::ActiveRecord, :active_record => true do
 
   it_behaves_like 'a_worker', 'process'
 
-  describe 'when an _async method is called' do
-    let(:method) { lambda {|*args| subject.process_async(*args) } }
-
-    it_behaves_like 'an async AR instance'
-  end
-
   describe 'when calling to async.method proxy' do
     let(:method) { lambda {|*args| subject.async.process(*args) } }
 

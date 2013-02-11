@@ -47,12 +47,6 @@ describe MicroQ::Methods::Class do
 
   it_behaves_like 'a_worker', 'seed'
 
-  describe 'when an _async method is called' do
-    let(:method) { lambda {|*args| subject.seed_async(*args) } }
-
-    it_behaves_like 'an async class'
-  end
-
   describe 'when calling to async.method proxy' do
     let(:method) { lambda {|*args| subject.async.seed(*args) } }
 
