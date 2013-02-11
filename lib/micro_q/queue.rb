@@ -15,7 +15,8 @@ require 'micro_q/queue/default'
 #     options are for items that dont require storing in the message itself
 #       but are important in queueing.
 # :method: dequeue
-#   - Remove and return items from the data store
+#   - Remove and return items from the data store (limited to n items)
+#   - :args: (limit = 30) optionally return no more than.
 #
 # You are otherwise able to implement this class in any suitable manner.
 # If adhering to the other conventions around data structures, keys, etc,

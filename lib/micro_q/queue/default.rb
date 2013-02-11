@@ -63,11 +63,13 @@ module MicroQ
 
       ##
       # Remove and return all available messages.
+      # Optionally give a limit and return only limit number of messages
       #
-      def dequeue
+      def dequeue(limit = 30)
+        idx = 0
         [].tap do |items|
           entries.each do |entry|
-            items << entry
+            items << entry unless (idx += 1) > limit
           end if entries.any?
 
           items.each {|i| entries.delete(i) }
@@ -76,7 +78,7 @@ module MicroQ
 
           if available.any?
             available.each do |entry|
-              items << entry['worker']
+              items << entry['worker'] unless (idx += 1) > limit
             end
 
             available.each {|a| later.delete(a) }

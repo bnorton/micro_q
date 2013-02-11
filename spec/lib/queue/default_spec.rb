@@ -193,6 +193,12 @@ describe MicroQ::Queue::Default do
         subject.entries.should == []
         subject.later.should == [later_item[1].merge('worker' => later_item[0])]
       end
+
+      describe 'when limited to a certain number' do
+        it 'should return all the available items' do
+          subject.dequeue(2).sort {|x, y| x['args'][0] <=> y['args'][0] }.should == items.first(2)
+        end
+      end
     end
   end
 end
