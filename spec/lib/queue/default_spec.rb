@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe MicroQ::Queue::Default do
+  let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
+
   describe '#entries' do
     it 'should be empty' do
       subject.entries.should == []
@@ -14,8 +16,6 @@ describe MicroQ::Queue::Default do
   end
 
   describe '#sync_push' do
-    let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
-
     it 'should add to the entries' do
       subject.sync_push(item)
 
@@ -98,8 +98,6 @@ describe MicroQ::Queue::Default do
   end
 
   describe '#push' do
-    let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
-
     before do
       @async = mock(Celluloid::ActorProxy)
       subject.stub(:async).and_return(@async)
@@ -203,36 +201,89 @@ describe MicroQ::Queue::Default do
   end
 
   describe '#stop' do
-    let(:file_name) { File.expand_path('../../../tmp/default_queue_entries.yml', File.dirname(__FILE__)) }
+    let(:file_name) { '/some/file/queue.yml' }
 
     describe 'when there are items in the queue' do
-      let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
       let(:other_item) { { 'class' => 'MyWorker', 'args' => ['hello'] } }
 
-      def parse_entries
-        YAML.load(File.open(file_name).read)
-      end
-
       before do
+        MicroQ.configure {|c| c.queue_file = file_name }
+
+        @file = mock(File, :write => nil)
+        File.stub(:open).with(file_name, 'w+').and_yield(@file)
+        File.stub(:exists?).and_return(false)
+        File.stub(:exists?).with(File.dirname(file_name)).and_return(true)
+
         subject.push(item)
         subject.push(other_item)
       end
 
-      after do
-        File.unlink(file_name)
-      end
-
       it 'should create the target file' do
-        File.exists?(file_name).should == false
-        subject.stop
+        File.should_receive(:open).with(file_name, 'w+')
 
-        File.exists?(file_name).should == true
+        subject.stop
       end
 
       it 'should write the entries' do
-        subject.stop
+        @file.should_receive(:write).with(YAML.dump([item, other_item]))
 
-        parse_entries.should == [item, other_item]
+        subject.stop
+      end
+
+      describe 'when the file directory does not exist' do
+        before do
+          File.stub(:exists?).with(File.dirname(file_name)).and_return(false)
+        end
+
+        it 'should not write the file' do
+          File.should_not_receive(:open)
+
+          subject.stop
+        end
+      end
+    end
+  end
+
+  describe '.new' do
+    let!(:file_name) { '/some/other/file/queue.yml' }
+    let(:queue) { -> { subject } }
+
+    before do
+      MicroQ.configure {|c| c.queue_file = file_name }
+    end
+
+    describe 'when there are persisted queue items' do
+      before do
+        File.stub(:exists?).with(File.dirname(file_name)).and_return(true)
+        File.stub(:exists?).with(file_name).and_return(true)
+        File.stub_chain(:new, :read).and_return(YAML.dump([item]))
+
+        File.stub(:unlink)
+      end
+
+      it 'should check the file existence' do
+        File.should_receive(:exists?).with(File.dirname(file_name)).and_return(true)
+        File.should_receive(:exists?).with(file_name).and_return(false)
+
+        queue.call
+      end
+
+      it 'should open the file' do
+        File.should_receive(:new).with(file_name)
+
+        queue.call
+      end
+
+      it 'should remove the file' do
+        File.should_receive(:unlink).with(file_name)
+
+        queue.call
+      end
+
+      it 'should read the file to place the items in the queue' do
+        queue.call
+
+        subject.entries.should == [item]
       end
     end
   end

@@ -3,8 +3,10 @@ module MicroQ
     ##
     # The default queue implementation.
     # Handles messages that should be run immediately as well as messages that
-    # should be run at some specified time in the future. When shutting down
-    # this queue type, the APP_ROOT/tmp directory must be accessible to MicroQ.
+    # should be run at some specified time in the future.
+    #
+    # When shutting down, if the MicroQ.config.queue_file is defined and accessible,
+    # the messages in the queue will be written for persistence.
     #
     # Usage:
     #
@@ -30,6 +32,8 @@ module MicroQ
       def initialize
         @entries = []
         @later   = []
+
+        load_queues
       end
 
       ##
@@ -93,14 +97,25 @@ module MicroQ
       # Stop the queue and store items for later
       #
       def stop
-        File.open(MicroQ.config.queue_file, 'w+') do |f|
+        File.open(queue_file, 'w+') do |f|
           f.write(YAML.dump(entries))
-        end if MicroQ.config.queue_file
+        end if queue_file?
 
         terminate
       end
 
       private
+
+      ##
+      # Parse the entries back into the queue from the filesystem
+      #
+      def load_queues
+        if queue_file? && File.exists?(queue_file)
+          @entries = YAML.load(File.new(queue_file).read)
+
+          File.unlink(queue_file)
+        end
+      end
 
       ##
       # Duplicate the given items and stringify the keys.
@@ -109,6 +124,14 @@ module MicroQ
         [MicroQ::Util.stringify_keys(args),
          MicroQ::Util.stringify_keys(options)
         ]
+      end
+
+      def queue_file
+        @queue_file ||= MicroQ.config.queue_file
+      end
+
+      def queue_file?
+        queue_file && File.exists?(File.dirname(queue_file))
       end
     end
   end

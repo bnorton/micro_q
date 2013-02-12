@@ -15,10 +15,6 @@ RSpec.configure do |config|
 
   config.before :each do
     MicroQ.send :clear
-
-    MicroQ.configure do |c|
-      c.queue_file = File.expand_path('../tmp/default_queue_entries.yml', File.dirname(__FILE__))
-    end
   end
 
   config.before :each, :active_record => true do
