@@ -201,4 +201,39 @@ describe MicroQ::Queue::Default do
       end
     end
   end
+
+  describe '#stop' do
+    let(:file_name) { File.expand_path('../../../tmp/default_queue_entries.yml', File.dirname(__FILE__)) }
+
+    describe 'when there are items in the queue' do
+      let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
+      let(:other_item) { { 'class' => 'MyWorker', 'args' => ['hello'] } }
+
+      def parse_entries
+        YAML.load(File.open(file_name).read)
+      end
+
+      before do
+        subject.push(item)
+        subject.push(other_item)
+      end
+
+      after do
+        File.unlink(file_name)
+      end
+
+      it 'should create the target file' do
+        File.exists?(file_name).should == false
+        subject.stop
+
+        File.exists?(file_name).should == true
+      end
+
+      it 'should write the entries' do
+        subject.stop
+
+        parse_entries.should == [item, other_item]
+      end
+    end
+  end
 end

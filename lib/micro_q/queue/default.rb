@@ -3,7 +3,8 @@ module MicroQ
     ##
     # The default queue implementation.
     # Handles messages that should be run immediately as well as messages that
-    # should be run at some specified time in the future.
+    # should be run at some specified time in the future. When shutting down
+    # this queue type, the APP_ROOT/tmp directory must be accessible to MicroQ.
     #
     # Usage:
     #
@@ -86,6 +87,17 @@ module MicroQ
             available.each {|a| later.delete(a) }
           end
         end
+      end
+
+      ##
+      # Stop the queue and store items for later
+      #
+      def stop
+        File.open(MicroQ.config.queue_file, 'w+') do |f|
+          f.write(YAML.dump(entries))
+        end if MicroQ.config.queue_file
+
+        terminate
       end
 
       private

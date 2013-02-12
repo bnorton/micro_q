@@ -14,9 +14,13 @@ require 'micro_q/queue/default'
 #     message is the hash the represents an pushed item
 #     options are for items that dont require storing in the message itself
 #       but are important in queueing.
+#
 # :method: dequeue
 #   - Remove and return items from the data store (limited to n items)
 #   - :args: (limit = 30) optionally return no more than.
+#
+# :method: stop
+#   - Perform any finalizing tasks (e.g. persist the queue)
 #
 # You are otherwise able to implement this class in any suitable manner.
 # If adhering to the other conventions around data structures, keys, etc,
