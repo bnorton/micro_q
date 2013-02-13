@@ -18,6 +18,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w(lib)
 
   gem.add_dependency             "celluloid"
+  gem.add_dependency             "redis"
+  gem.add_dependency             "connection_pool"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "timecop"
@@ -25,4 +27,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "activerecord", "> 3.2.0"
   gem.add_development_dependency "actionmailer", "> 3.2.0"
   gem.add_development_dependency "sqlite3-ruby"
+  gem.add_development_dependency "mock_redis"
 end

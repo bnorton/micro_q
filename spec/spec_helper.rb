@@ -1,11 +1,17 @@
 require 'micro_q'
 require 'time'
 require 'timecop'
-require 'celluloid'
+require 'mock_redis'
 
-require 'helpers/methods_examples'
+[:methods, :queues].
+  each {|path| require "helpers/#{path}_examples" }
 
 Celluloid.logger = nil
+
+# Don't require an actual Redis instance for testing
+silence_warnings do
+  Redis = MockRedis
+end
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
@@ -15,6 +21,7 @@ RSpec.configure do |config|
 
   config.before :each do
     MicroQ.send :clear
+    MicroQ.redis {|r| r.flushdb }
   end
 
   config.before :each, :active_record => true do

@@ -10,13 +10,15 @@ module MicroQ
     #
     def initialize
       @data = {
-        'workers' => 3,
+        'workers' => 5,
         'timeout' => 120,
         'interval' => 5,
         'middleware' => Middleware::Chain.new,
         'manager' => Manager::Default,
         'worker' => Worker::Standard,
-        'queue' => Queue::Default
+        'queue' => Queue::Default,
+        'redis_pool' => { :size => 15, :timeout => 1 },
+        'redis' => { :host => 'localhost', :port => 6379 }
       }
     end
 

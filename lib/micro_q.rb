@@ -1,4 +1,7 @@
 require 'celluloid'
+require 'connection_pool'
+require 'redis'
+
 require 'micro_q/util'
 require 'micro_q/config'
 require 'micro_q/manager'
@@ -45,3 +48,5 @@ require 'micro_q/methods'
 require 'micro_q/proxies'
 require 'micro_q/worker'
 require 'micro_q/queue'
+
+require 'micro_q/redis'

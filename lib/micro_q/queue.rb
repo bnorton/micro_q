@@ -1,4 +1,5 @@
 require 'micro_q/queue/default'
+require 'micro_q/queue/redis'
 
 ##
 # The Queueing interface

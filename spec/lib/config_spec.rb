@@ -24,8 +24,8 @@ describe MicroQ::Config do
   describe 'defaults' do
     subject { MicroQ.config }
 
-    it 'should have 3 workers' do
-      subject.workers.should == 3
+    it 'should have 5 workers' do
+      subject.workers.should == 5
     end
 
     it 'should have a 5 second interval' do
@@ -42,6 +42,14 @@ describe MicroQ::Config do
 
     it 'should not have a logfile' do
       subject.logfile.should == nil
+    end
+
+    it 'should have a redis pool config' do
+      subject.redis_pool.should == { :size => 15, :timeout => 1 }
+    end
+
+    it 'should have a redis config' do
+      subject.redis.should == { :host => 'localhost', :port => 6379 }
     end
 
     it 'should have the default queue' do
