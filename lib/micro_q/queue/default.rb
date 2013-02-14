@@ -52,7 +52,7 @@ module MicroQ
       #   when: The time/timestamp after which to run the message.
       #
       def sync_push(item, options={})
-        item, options = before_push(item, options)
+        item, options = MicroQ::Util.stringify(item, options)
 
         MicroQ.middleware.client.call(item['class'], item, options) do
           if (time = options['when'])
@@ -115,15 +115,6 @@ module MicroQ
 
           File.unlink(queue_file)
         end
-      end
-
-      ##
-      # Duplicate the given items and stringify the keys.
-      #
-      def before_push(args, options)
-        [MicroQ::Util.stringify_keys(args),
-         MicroQ::Util.stringify_keys(options)
-        ]
       end
 
       def queue_file

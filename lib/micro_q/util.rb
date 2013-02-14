@@ -15,6 +15,16 @@ module MicroQ
     rescue
     end
 
+    def self.json_parse
+      @@json_parse ||= proc {|entry| JSON.parse(entry) }
+    end
+
+    def self.stringify(*args)
+      args.collect do |a|
+        stringify_keys(a)
+      end
+    end
+
     ##
     # Copy a hash and convert all keys to strings.
     # Stringifies to infinite hash depth
