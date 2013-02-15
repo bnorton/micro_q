@@ -38,7 +38,7 @@ RSpec.configure do |config|
       );
     SQL
 
-    # ** Transactional fixtures. **
+    # ** Transactional fixtures. BEGIN **
     @_db.transaction
 
     ActiveRecord::Base.establish_connection(
@@ -48,6 +48,7 @@ RSpec.configure do |config|
   end
 
   config.after :each, :active_record => true do
+    # ** Transactional fixtures. END **
     @_db.rollback
   end
 

@@ -1,4 +1,4 @@
-shared_examples_for "Queue#sync_push" do
+shared_examples_for 'Queue#sync_push' do
   it 'should add to the entries' do
     subject.sync_push(item)
 
