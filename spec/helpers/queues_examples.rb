@@ -5,6 +5,12 @@ shared_examples_for 'Queue#sync_push' do
     subject.entries.should include(item)
   end
 
+  it 'should stringify the class' do
+    subject.sync_push(:class => MyWorker)
+
+    subject.entries.should include('class' => 'MyWorker')
+  end
+
   it 'should duplicate the item' do
     subject.sync_push(item)
 

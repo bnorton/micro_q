@@ -53,8 +53,9 @@ module MicroQ
       #
       def sync_push(item, options={})
         item, options = MicroQ::Util.stringify(item, options)
+        klass = item['class'] = item['class'].to_s
 
-        MicroQ.middleware.client.call(item['class'], item, options) do
+        MicroQ.middleware.client.call(klass, item, options) do
           if (time = options['when'])
             @later.push(
               'when' => time.to_f,

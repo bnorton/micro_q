@@ -33,7 +33,7 @@ module MicroQ
           end
         end
 
-        after(5) { start }
+        after(2) { start }
       end
     end
   end
