@@ -8,18 +8,33 @@ module MicroQ
         :later => 'micro_q:queue:later'
       }.freeze
 
+      ##
+      # All of the items in the entries queue
+      #
       def entries
         MicroQ.redis do |r|
           r.lrange(QUEUES[:entries], 0, -1)
         end.collect(&MicroQ::Util.json_parse)
       end
 
+      ##
+      # All of the items in the later queue
+      #
       def later
         MicroQ.redis do |r|
           r.zrangebyscore(QUEUES[:later], '-inf', '+inf')
         end.collect(&MicroQ::Util.json_parse)
       end
 
+      ##
+      # Asynchronously push a message item to the queue.
+      # Either push it to the immediate portion of the queue (a Redis list)
+      # or store it in the later queue (a Redis sorted-set). The message will
+      # be available for dequeue after the :when time passes.
+      #
+      # Options:
+      #   when: The time/timestamp after which to run the message.
+      #
       def push(item, options = {})
         async.sync_push(item, options)
       end

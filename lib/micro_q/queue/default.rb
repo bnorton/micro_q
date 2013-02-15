@@ -44,9 +44,9 @@ module MicroQ
       end
 
       ##
-      # Synchronously push a message item to the queue.
+      # Asynchronously push a message item to the queue.
       # Either push it to the immediate portion of the queue or store it for after when
-      # it should be run with the 'when' option.
+      # it should be run with the :when option.
       #
       # Options:
       #   when: The time/timestamp after which to run the message.
