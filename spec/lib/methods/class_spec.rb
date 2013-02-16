@@ -48,8 +48,18 @@ describe MicroQ::Methods::Class do
   it_behaves_like 'a_worker', 'seed'
 
   describe 'when calling to async.method proxy' do
-    let(:method) { lambda {|*args| subject.async.seed(*args) } }
+    let(:method) { ->(*args) { subject.async.seed(*args) } }
 
     it_behaves_like 'an async class'
+
+    describe 'when given when to run the job' do
+      let(:method) { -> { subject.async(:at => "sometime") } }
+
+      it 'should pass the option' do
+        MicroQ::Proxy::Class.should_receive(:new).with(hash_including(:at => "sometime"))
+
+        method.call
+      end
+    end
   end
 end

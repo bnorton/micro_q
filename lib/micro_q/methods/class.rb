@@ -9,8 +9,10 @@ module MicroQ
     # message invocation
     #
     module Class
-      def async
-        MicroQ::Proxy::Class.new(:class => self, :loader => {})
+      def async(options = {})
+        MicroQ::Proxy::Class.new(
+          options.merge(:class => self, :loader => {})
+        )
       end
     end
   end

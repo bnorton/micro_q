@@ -14,8 +14,8 @@ module MicroQ
     # store the id as the argument for find.
     #
     module ActiveRecord
-      def async
-        options = {
+      def async(options = {})
+        defaults = {
           :class => self.class,
           :loader => {
             :method => 'find',
@@ -23,7 +23,9 @@ module MicroQ
           }
         }
 
-        MicroQ::Proxy::Instance.new(options)
+        MicroQ::Proxy::Instance.new(
+          options.merge(defaults)
+        )
       end
     end
   end

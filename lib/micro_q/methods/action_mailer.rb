@@ -1,17 +1,17 @@
 module MicroQ
   module Methods
     ##
-    # Methods that are added to ActionMailer instances
+    # Methods that are added to the ActionMailer class
     #
     # When mailing asynchronously, the deliver method needs to be
     # called which means a custom wrapper.
     #
     module ActionMailer
-      def async
-        MicroQ::Proxy::ActionMailer.new(
+      def async(options = {})
+        MicroQ::Proxy::ActionMailer.new(options.merge(
           :class => MicroQ::Wrapper::ActionMailer,
           :base => self
-        )
+        ))
       end
     end
   end

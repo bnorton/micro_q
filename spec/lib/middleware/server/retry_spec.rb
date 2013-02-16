@@ -17,7 +17,7 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
 
     describe 'when the block raises an Exception' do
       let(:exception) { Exception.new }
-      let(:block) { lambda { raise exception } }
+      let(:block) { -> { raise exception } }
 
       describe 'when retry is disabled' do
         before do

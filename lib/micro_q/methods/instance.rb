@@ -11,8 +11,10 @@ module MicroQ
     # what the default worker does.
     #
     module Instance
-      def async
-        MicroQ::Proxy::Instance.new(:class => self.class)
+      def async(options = {})
+        MicroQ::Proxy::Instance.new(
+          options.merge(:class => self.class)
+        )
       end
     end
   end

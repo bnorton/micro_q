@@ -24,5 +24,15 @@ describe MicroQ::Methods::ActionMailer do
 
       async.call
     end
+
+    describe 'when given when to run the job' do
+      let(:method) { -> { MyMailer.async(:at => "sometime") } }
+
+      it 'should pass the option' do
+        MicroQ::Proxy::ActionMailer.should_receive(:new).with(hash_including(:at => "sometime"))
+
+        method.call
+      end
+    end
   end
 end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe MicroQ::Proxy::ActionMailer do
-  let(:method) { lambda {|*args| subject.mail_me(*args) } }
+  let(:method) { ->(*args) { subject.mail_me(*args) } }
   let(:options) { { :class => MicroQ::Wrapper::ActionMailer, :base => MyMailer } }
 
   class MyMailer < ActionMailer::Base
