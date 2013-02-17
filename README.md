@@ -19,8 +19,10 @@ Or install it:
 ## Usage
 
 ```ruby
-# A typical worker
+## A typical worker class
 class MyWorker
+  worker :update # sets up the dsl and takes additional async_ methods
+
   def perform
     # do some performing here
   end
@@ -31,24 +33,30 @@ class MyWorker
 end
 ```
 
-###Simple (default)
+###Simple
 
 ```ruby
-# Using the async proxy API
-MyWorker.async.perform
-
-MyWorker.async.update(:user_id => user.id)
-
-# Through the raw push API
-MicroQ.push(:class => 'MyWorker') # Defaults to the perform method
-
-# With a custom method
-MicroQ.push(:class => 'MyWorker', :method => 'update', :args => [{:user_id => user.id}])
+MyWorker.async_perform
+MyWorker.async_update(:user_id => user.id)
 ```
 
 ###Advanced
 
-###Custom Loaders
+Safely using an ActiveRecord instance via the Custom Loader API 
+```ruby
+# app/models/user.rb
+class User < Activerecord::Base
+  def update_social_data
+    # Send HTTP requests to Facebook, Twitter, etc
+  end
+end
+
+# app/controllers/users_controller.rb
+def update
+  user = account.users.find(params[:id])
+  user.async.update_social_data
+end
+```
 
 ## Contributing
 
