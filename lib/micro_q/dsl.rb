@@ -1,4 +1,20 @@
 module MicroQ
+  ##
+  # Convenience methods for calling methods asynchronously
+  # Adds async_perform by default
+  #
+  # Usage
+  # class MyWorker
+  #   worker :update, :queue => 'non-default'
+  #
+  #   def update
+  #   end
+  # end
+  #
+  # MyWorker.async_update
+  # is the same as
+  # MyWorker.new.async(:queue => 'non-default').update
+  #
   module DSL
     def worker(*opts)
       self.class_eval do
@@ -14,6 +30,10 @@ module MicroQ
       async_methods = self.microq_options[:methods] |= opts.flatten
 
       self.class_eval do
+        ##
+        # For each of the methods given to the Object.worker method
+        # define the async_ prefixed version for convenience
+        #
         async_methods.each do |method|
           async_method = :"async_#{method}"
           define_singleton_method(async_method) do |*args|
