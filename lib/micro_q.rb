@@ -45,6 +45,7 @@ end
 require 'micro_q/middleware'
 require 'micro_q/wrappers'
 require 'micro_q/methods'
+require 'micro_q/dsl'
 require 'micro_q/proxies'
 require 'micro_q/worker'
 require 'micro_q/queue'

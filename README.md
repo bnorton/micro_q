@@ -19,8 +19,10 @@ Or install it:
 ## Usage
 
 ```ruby
-# A typical worker
+## A typical worker class
 class MyWorker
+  worker :update # sets up the dsl and takes additional async_ methods
+
   def perform
     # do some performing here
   end
@@ -37,7 +39,7 @@ end
 # Using the async proxy API
 MyWorker.async.perform
 
-MyWorker.async.update(:user_id => user.id)
+MyWorker.async_update(:user_id => user.id)
 
 # Through the raw push API
 MicroQ.push(:class => 'MyWorker') # Defaults to the perform method
