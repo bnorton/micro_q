@@ -42,7 +42,7 @@ MyWorker.async_update(:user_id => user.id)
 
 ###Advanced
 
-Safely using an ActiveRecord instance via the Custom Loader API 
+Safely using an ActiveRecord instance via the [Custom Loader](https://github.com/bnorton/micro_q/wiki/Loaders) API 
 ```ruby
 # app/models/user.rb
 class User < Activerecord::Base
