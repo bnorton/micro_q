@@ -17,12 +17,10 @@ module MicroQ
     class Default
       include Celluloid
 
-      attr_reader :queue, :workers
+      # Invoke this when the Queue or Worker pool dies
+      exit_handler :reinitialize
 
-      def initialize
-        @queue   = MicroQ.config.queue.new
-        @workers = MicroQ.config.worker.pool(:size => MicroQ.config.workers)
-      end
+      attr_reader :queue, :workers
 
       def start
         count = workers.idle_size
@@ -35,6 +33,21 @@ module MicroQ
 
         after(2) { start }
       end
+
+      ##
+      # Handle init/death of the Queue or the Worker pool
+      #
+      def reinitialize(*)
+        unless @queue && @queue.alive?
+          @queue = MicroQ.config.queue.new_link
+        end
+
+        unless @workers && @workers.alive?
+          @workers = MicroQ.config.worker.pool_link(:size => MicroQ.config.workers)
+        end
+      end
+
+      alias initialize reinitialize
     end
   end
 end
