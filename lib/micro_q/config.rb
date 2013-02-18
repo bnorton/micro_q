@@ -17,6 +17,7 @@ module MicroQ
         'manager' => Manager::Default,
         'worker' => Worker::Standard,
         'queue' => Queue::Default,
+        'statistics' => Statistics::Default,
         'redis_pool' => { :size => 15, :timeout => 1 },
         'redis' => { :host => 'localhost', :port => 6379 }
       }

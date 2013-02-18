@@ -11,7 +11,7 @@ describe MicroQ::Middleware::Server::Statistics, :middleware => true do
 
     before do
       @stats = mock(MicroQ::Statistics::Default, :incr => nil)
-      MicroQ::Statistics::Default.stub(:statistics).and_yield(@stats)
+      MicroQ::Statistics::Default.stub(:stats).and_yield(@stats)
     end
 
     it 'should execute the block' do
@@ -21,7 +21,7 @@ describe MicroQ::Middleware::Server::Statistics, :middleware => true do
     end
 
     it 'should call into the statistics backend' do
-      MicroQ::Statistics::Default.should_receive(:statistics)
+      MicroQ::Statistics::Default.should_receive(:stats)
 
       call
     end

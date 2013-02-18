@@ -1,26 +1,26 @@
 require 'spec_helper'
 
 describe MicroQ::Statistics::Default do
-  describe '.statistics' do
+  describe '.stats' do
     it 'should yield a default statistics obj' do
-      MicroQ::Statistics::Default.statistics {|stats| stats.class.should == MicroQ::Statistics::Default }
+      MicroQ::Statistics::Default.stats {|stats| stats.class.should == MicroQ::Statistics::Default }
     end
 
     it 'should memoize the instance' do
       items = []
-      2.times { MicroQ::Statistics::Default.statistics {|stats| items << stats.object_id } }
+      2.times { MicroQ::Statistics::Default.stats {|stats| items << stats.object_id } }
 
       items.uniq.length.should == 1
     end
   end
 
-  describe '.stats' do
+  describe '.instance' do
     it 'should be the statistics obj' do
-      MicroQ::Statistics::Default.stats.class.should == MicroQ::Statistics::Default
+      MicroQ::Statistics::Default.instance.class.should == MicroQ::Statistics::Default
     end
 
     it 'should memoize the instance' do
-      2.times.collect { MicroQ::Statistics::Default.stats }.uniq.length.should == 1
+      2.times.collect { MicroQ::Statistics::Default.instance }.uniq.length.should == 1
     end
   end
 

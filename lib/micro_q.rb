@@ -20,6 +20,10 @@ module MicroQ
     config.middleware
   end
 
+  def self.stats(&block)
+    config.statistics.stats(&block)
+  end
+
   def self.start
     manager
   end

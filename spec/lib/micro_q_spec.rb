@@ -27,6 +27,17 @@ describe MicroQ do
     end
   end
 
+  describe '.stats' do
+    it 'should have the statistics' do
+      klass = nil
+      MicroQ.stats do |stats|
+        klass = stats.class
+      end
+
+      klass.should == MicroQ::Statistics::Default
+    end
+  end
+
   describe '.start' do
     def start
       MicroQ.start

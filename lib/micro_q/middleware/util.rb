@@ -2,7 +2,7 @@ module MicroQ
   module Middleware
     module Util
       def statistics
-        MicroQ::Statistics::Default.statistics do |stats|
+        MicroQ::Statistics::Default.stats do |stats|
           yield stats
         end
       end

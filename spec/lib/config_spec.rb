@@ -63,5 +63,9 @@ describe MicroQ::Config do
     it 'should have the standard worker' do
       subject.worker.should == MicroQ::Worker::Standard
     end
+
+    it 'should have the default statistics' do
+      subject.statistics.should == MicroQ::Statistics::Default
+    end
   end
 end

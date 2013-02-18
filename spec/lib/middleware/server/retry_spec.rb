@@ -21,7 +21,7 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
 
       before do
         @stats = mock(MicroQ::Statistics::Default, :incr => nil)
-        MicroQ::Statistics::Default.stub(:statistics).and_yield(@stats)
+        MicroQ::Statistics::Default.stub(:stats).and_yield(@stats)
       end
 
       describe 'when retry is disabled' do
