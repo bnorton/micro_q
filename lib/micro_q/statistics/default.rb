@@ -1,16 +1,6 @@
 module MicroQ
   module Statistics
-    class Default
-      attr_reader :increment
-
-      def self.stats
-        yield instance
-      end
-
-      def self.instance
-        @instance ||= new
-      end
-
+    class Default < Base
       def initialize
         @increment = Hash.new { 0 }
         @increment_mutex = Mutex.new

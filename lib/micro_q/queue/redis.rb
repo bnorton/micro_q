@@ -41,7 +41,7 @@ module MicroQ
 
       def sync_push(item, options = {})
         item, options = MicroQ::Util.stringify(item, options)
-        klass = item['class'] = item['class'].to_s
+        item['class'] = item['class'].to_s
 
         MicroQ.middleware.client.call(item, options) do
           json = JSON.dump(item)

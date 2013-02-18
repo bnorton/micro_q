@@ -65,7 +65,9 @@ require 'micro_q/methods/instance'
 require 'micro_q/methods/active_record'
 require 'micro_q/methods/action_mailer'
 
+require 'micro_q/statistics/base'
 require 'micro_q/statistics/default'
+require 'micro_q/statistics/redis'
 
 # There is a better way coming soon 2/18/13
 at_exit do
