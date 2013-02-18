@@ -12,7 +12,7 @@ module MicroQ
     # A minimal message: (Calls the perform method with zero arguments)
     # { :class => 'MyWorker' }
     #
-    # A more complex message: (Calls the update_data with a single paramater as a list of ids)
+    # A more complex message: (Calls the update_data with a single parameter as a list of ids)
     # { :class => 'MyUpdater', 'method' => 'update_data', :args => [[2, 6,74, 198]]}
     #
     class Standard

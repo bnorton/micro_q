@@ -37,9 +37,7 @@ describe MicroQ::Queue::Default do
       end
 
       it 'should process the middleware chain' do
-        MicroQ.middleware.client.should_receive(:call) do |w, payload, options|
-          w.should == 'MyWorker'
-
+        MicroQ.middleware.client.should_receive(:call) do |payload, options|
           payload['class'].should == 'MyWorker'
           payload['args'].should == [4]
           options['when'].should == (Time.now + 100).to_i

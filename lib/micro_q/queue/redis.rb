@@ -43,7 +43,7 @@ module MicroQ
         item, options = MicroQ::Util.stringify(item, options)
         klass = item['class'] = item['class'].to_s
 
-        MicroQ.middleware.client.call(klass, item, options) do
+        MicroQ.middleware.client.call(item, options) do
           json = JSON.dump(item)
 
           MicroQ.redis do |r|

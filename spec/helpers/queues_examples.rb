@@ -24,14 +24,14 @@ shared_examples_for 'Queue#sync_push' do
 
   describe 'client middleware' do
     it 'should process the middleware chain' do
-      MicroQ.middleware.client.should_receive(:call) do |w, payload|
-        w.should == 'MyWorker'
-
+      MicroQ.middleware.client.should_receive(:call) do |payload, opts|
         payload['class'].should == 'MyWorker'
         payload['args'].should == [4]
+
+        opts['when'].should == 'now'
       end
 
-      subject.sync_push(item)
+      subject.sync_push(item, 'when' => 'now')
     end
   end
 end

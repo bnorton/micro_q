@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 describe MicroQ::Middleware::Chain do
+  class MyMiddleware; end
+
   describe MicroQ::Middleware::Chain::Base do
     subject { MicroQ::Middleware::Chain::Base.new }
 
-    class MyMiddleware; end
     class OtherMiddleware; end
 
     describe '#add' do
@@ -205,14 +206,17 @@ describe MicroQ::Middleware::Chain do
     end
 
     describe 'defaults' do
-      [MicroQ::Middleware::Server::Timeout, MicroQ::Middleware::Server::Retry, MicroQ::Middleware::Server::Connection].each do |klass|
+      [MicroQ::Middleware::Server::Statistics,
+       MicroQ::Middleware::Server::Timeout,
+       MicroQ::Middleware::Server::Retry,
+       MicroQ::Middleware::Server::Connection].each do |klass|
         it "should include #{klass}" do
           subject.server.entries.should include(klass)
         end
       end
 
-      it 'should be 3 items long' do
-        subject.server.entries.should have(3).items
+      it 'should be 4 items long' do
+        subject.server.entries.should have(4).items
       end
     end
   end
@@ -226,8 +230,16 @@ describe MicroQ::Middleware::Chain do
       subject.client.object_id.should == subject.client.object_id
     end
 
-    it "should be empty" do
-      subject.client.entries.should == []
+    describe 'defaults' do
+      [MicroQ::Middleware::Client::Statistics].each do |klass|
+        it "should include #{klass}" do
+          subject.client.entries.should include(klass)
+        end
+      end
+
+      it 'should be 1 item long' do
+        subject.client.entries.should have(1).item
+      end
     end
   end
 
@@ -261,6 +273,18 @@ describe MicroQ::Middleware::Chain do
         call
       end
 
+      it 'should make a new statistics instance' do
+        MicroQ::Middleware::Server::Statistics.should_receive(:new).and_call_original
+
+        call
+      end
+
+      it 'should not remove the Statistics' do
+        subject.server.remove(MicroQ::Middleware::Server::Statistics)
+
+        subject.server.entries.should include(MicroQ::Middleware::Server::Statistics)
+      end
+
       it 'should call the timeout middleware' do
         @timeout = mock(MicroQ::Middleware::Server::Timeout)
         MicroQ::Middleware::Server::Timeout.stub(:new).and_return(@timeout)
@@ -284,6 +308,44 @@ describe MicroQ::Middleware::Chain do
         MicroQ::Middleware::Server::Connection.stub(:new).and_return(@connection)
 
         @connection.should_receive(:call).with(worker, payload)
+
+        call
+      end
+
+      it 'should call the statistics middleware' do
+        statistics = mock(MicroQ::Middleware::Server::Connection)
+        MicroQ::Middleware::Server::Connection.stub(:new).and_return(statistics)
+
+        statistics.should_receive(:call).with(worker, payload)
+
+        call
+      end
+    end
+
+    describe 'client' do
+      let(:opts) { mock("options") }
+
+      def call
+        subject.client.call(payload, opts) { }
+      end
+
+      it 'should make a new statistics instance' do
+        MicroQ::Middleware::Client::Statistics.should_receive(:new).and_call_original
+
+        call
+      end
+
+      it 'should not remove the Statistics' do
+        subject.client.remove(MicroQ::Middleware::Client::Statistics)
+
+        subject.client.entries.should include(MicroQ::Middleware::Client::Statistics)
+      end
+
+      it 'should call the statistics middleware' do
+        statistics = mock(MicroQ::Middleware::Client::Statistics)
+        MicroQ::Middleware::Client::Statistics.stub(:new).and_return(statistics)
+
+        statistics.should_receive(:call).with(payload, opts)
 
         call
       end

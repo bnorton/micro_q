@@ -1,6 +1,9 @@
 require 'micro_q/middleware/server/retry'
 require 'micro_q/middleware/server/connection'
 require 'micro_q/middleware/server/timeout'
+require 'micro_q/middleware/server/statistics'
+
+require 'micro_q/middleware/client/statistics'
 
 module MicroQ
   module Middleware
@@ -36,10 +39,12 @@ module MicroQ
       end
 
       class Base
-        attr_reader :entries
-
         def initialize
           clear
+        end
+
+        def entries
+          [*@entries, @last].compact
         end
 
         ##
@@ -91,6 +96,7 @@ module MicroQ
 
       class Server < Base
         def initialize
+          @last    = MicroQ::Middleware::Server::Statistics
           @entries = [
             MicroQ::Middleware::Server::Timeout,
             MicroQ::Middleware::Server::Retry,
@@ -100,6 +106,10 @@ module MicroQ
       end
 
       class Client < Base
+        def initialize
+          @last = MicroQ::Middleware::Client::Statistics
+          super
+        end
       end
     end
   end
