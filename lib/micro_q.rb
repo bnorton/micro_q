@@ -1,3 +1,4 @@
+require 'timeout'
 require 'celluloid'
 require 'connection_pool'
 require 'redis'

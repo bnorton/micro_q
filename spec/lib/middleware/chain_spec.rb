@@ -205,14 +205,14 @@ describe MicroQ::Middleware::Chain do
     end
 
     describe 'defaults' do
-      [MicroQ::Middleware::Server::Retry, MicroQ::Middleware::Server::Connection].each do |klass|
+      [MicroQ::Middleware::Server::Timeout, MicroQ::Middleware::Server::Retry, MicroQ::Middleware::Server::Connection].each do |klass|
         it "should include #{klass}" do
           subject.server.entries.should include(klass)
         end
       end
 
-      it 'should be 2 items long' do
-        subject.server.entries.should have(2).items
+      it 'should be 3 items long' do
+        subject.server.entries.should have(3).items
       end
     end
   end
@@ -243,6 +243,12 @@ describe MicroQ::Middleware::Chain do
         subject.server.call(worker, payload) { }
       end
 
+      it 'should make a new timeout instance' do
+        MicroQ::Middleware::Server::Timeout.should_receive(:new).and_call_original
+
+        call
+      end
+
       it 'should make a new retry instance' do
         MicroQ::Middleware::Server::Retry.should_receive(:new).and_call_original
 
@@ -251,6 +257,15 @@ describe MicroQ::Middleware::Chain do
 
       it 'should make a new connections instance' do
         MicroQ::Middleware::Server::Connection.should_receive(:new).and_call_original
+
+        call
+      end
+
+      it 'should call the timeout middleware' do
+        @timeout = mock(MicroQ::Middleware::Server::Timeout)
+        MicroQ::Middleware::Server::Timeout.stub(:new).and_return(@timeout)
+
+        @timeout.should_receive(:call).with(worker, payload)
 
         call
       end
