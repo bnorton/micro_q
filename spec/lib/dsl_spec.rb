@@ -3,7 +3,7 @@ require 'spec_helper'
 describe MicroQ::DSL do
   describe '.worker' do
     class OtherWorker
-      worker :update
+      worker :update, :option => 'value'
     end
 
     it 'should add the method' do
@@ -42,6 +42,12 @@ describe MicroQ::DSL do
         method.call
       end
 
+      it 'should have the "worker" options' do
+        MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:option => 'value')).and_return(@proxy)
+
+        method.call
+      end
+
       it 'should call the perform method' do
         @proxy.should_receive(:perform)
 
@@ -65,6 +71,12 @@ describe MicroQ::DSL do
 
       it 'should have the class' do
         MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:class => OtherWorker)).and_return(@proxy)
+
+        method.call
+      end
+
+      it 'should have the "worker" options' do
+        MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:option => 'value')).and_return(@proxy)
 
         method.call
       end

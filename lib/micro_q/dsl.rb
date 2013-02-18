@@ -37,7 +37,9 @@ module MicroQ
         async_methods.each do |method|
           async_method = :"async_#{method}"
           define_singleton_method(async_method) do |*args|
-            MicroQ::Proxy::Instance.new(:class => self).send(method, *args)
+            MicroQ::Proxy::Instance.new(
+              microq_options.dup.merge(:class => self)
+            ).send(method, *args)
           end unless respond_to?(async_method)
         end
       end
