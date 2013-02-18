@@ -19,6 +19,11 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
       let(:exception) { Exception.new }
       let(:block) { -> { raise exception } }
 
+      before do
+        @stats = mock(MicroQ::Statistics::Default, :incr => nil)
+        MicroQ::Statistics::Default.stub(:statistics).and_yield(@stats)
+      end
+
       describe 'when retry is disabled' do
         before do
           @payload['retry'] = false
@@ -40,6 +45,24 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
           expect {
             call
           }.to raise_error(exception)
+        end
+
+        it 'should log the retry' do
+          @stats.should_receive(:incr).with('messages:retry')
+
+          safe(:call)
+        end
+
+        it 'should log the class\' retry' do
+          @stats.should_receive(:incr).with("messages:#{@payload['class']}:retry")
+
+          safe(:call)
+        end
+
+        it 'should log the queues\' retry' do
+          @stats.should_receive(:incr).with("queues:a-queue:retry")
+
+          safe(:call)
         end
 
         it 'should increment the number of retries' do

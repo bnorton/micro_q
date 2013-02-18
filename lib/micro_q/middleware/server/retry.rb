@@ -11,6 +11,10 @@ module MicroQ
       # when:  The time at which the message will be retried again
       #
       class Retry
+        include MicroQ::Middleware::Util
+
+        RETRY = proc {|klass| klass ? "messages:#{klass}:retry" : 'messages:retry' }
+
         def call(worker, message)
           yield
         rescue Exception => e
@@ -21,6 +25,12 @@ module MicroQ
           message['retried']['count'] += 1
           message['retried']['at']    = Time.now
           message['retried']['when']  = (Time.now + 15).to_f
+
+          statistics do |stats|
+            stats.incr(RETRY.call)
+            stats.incr(RETRY.call(message['class']))
+            stats.incr("queues:#{message['queue']}:retry")
+          end
 
           MicroQ.push(message, message['retried'])
 

@@ -1,3 +1,4 @@
+require 'micro_q/middleware/util'
 require 'micro_q/middleware/server/retry'
 require 'micro_q/middleware/server/connection'
 require 'micro_q/middleware/server/timeout'

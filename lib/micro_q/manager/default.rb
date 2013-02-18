@@ -38,6 +38,8 @@ module MicroQ
       # Handle init/death of the Queue or the Worker pool
       #
       def reinitialize(*)
+        return if @shutdown
+
         unless @queue && @queue.alive?
           @queue = MicroQ.config.queue.new_link
         end

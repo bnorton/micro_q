@@ -56,7 +56,7 @@ RSpec.configure do |config|
     class WorkerClass; end
 
     @worker = WorkerClass.new
-    @payload = { 'class' => 'WorkerClass', 'args' => [1, 2]}
+    @payload = { 'class' => 'WorkerClass', 'args' => [1, 2], 'queue' => 'a-queue'}
   end
 end
 

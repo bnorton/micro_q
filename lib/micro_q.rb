@@ -44,11 +44,26 @@ module MicroQ
 end
 
 require 'micro_q/middleware'
-require 'micro_q/wrappers'
-require 'micro_q/methods'
 require 'micro_q/dsl'
 require 'micro_q/proxies'
 require 'micro_q/worker'
 require 'micro_q/queue'
 
 require 'micro_q/redis'
+
+require 'micro_q/wrappers/action_mailer'
+
+# add Class and Instance methods first then
+# override with additional extensions
+
+require 'micro_q/methods/class'
+require 'micro_q/methods/instance'
+require 'micro_q/methods/active_record'
+require 'micro_q/methods/action_mailer'
+
+require 'micro_q/statistics/default'
+
+# There is a better way coming soon 2/18/13
+at_exit do
+  MicroQ.send(:manager).instance_variable_set(:@shutdown, true)
+end
