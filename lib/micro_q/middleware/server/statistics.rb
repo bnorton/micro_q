@@ -7,12 +7,20 @@ module MicroQ
         PERFORMED = proc {|klass| klass ? "messages:#{klass}:performed" : 'messages:performed' }
 
         def call(_, message)
-          statistics do |stats|
-            stats.incr(PERFORMED.call)
-            stats.incr(PERFORMED.call(message['class']))
-            stats.incr("queues:#{message['queue']}:performed")
-          end
+          stats(message)
           yield
+        end
+
+        private
+
+        def stats(msg)
+          statistics do |stats|
+            stats.incr(
+              PERFORMED.call,
+              PERFORMED.call(msg['class']),
+              "queues:#{msg['queue']}:performed"
+            )
+          end
         end
       end
     end

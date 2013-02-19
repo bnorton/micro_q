@@ -11,10 +11,12 @@ module MicroQ
         end
       end
 
-      def incr(key)
-        MicroQ.redis do |r|
-          r.hincrby(INCR, key, 1)
-        end
+      def incr(*keys)
+        MicroQ.redis do |r| r.pipelined {
+          keys.flatten.each do |key|
+            r.hincrby(INCR, key, 1)
+          end
+        } end
       end
     end
   end

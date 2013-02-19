@@ -6,9 +6,11 @@ module MicroQ
         @increment_mutex = Mutex.new
       end
 
-      def incr(key)
+      def incr(*keys)
         @increment_mutex.synchronize do
-          @increment[key.to_s] += 1
+          keys.flatten.each do |key|
+            @increment[key.to_s] += 1
+          end
         end
       end
     end

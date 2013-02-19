@@ -32,7 +32,7 @@ describe MicroQ::Statistics::Redis do
 
   describe '#incr' do
     before do
-      subject.incr("key_name")
+      subject.incr('key_name')
       subject.incr(:other)
     end
 
@@ -45,13 +45,27 @@ describe MicroQ::Statistics::Redis do
 
     describe 'when called again' do
       before do
-        3.times { subject.incr("other") }
+        3.times { subject.incr('other') }
       end
 
       it 'should increment the key' do
         subject.increment.should == {
           'key_name' => 1,
           'other' => 4
+        }
+      end
+    end
+
+    describe 'when given may keys' do
+      before do
+        2.times { subject.incr('other', 'another-key') }
+      end
+
+      it 'should increment each key' do
+        subject.increment.should == {
+          'key_name' => 1,
+          'other' => 3,
+          'another-key' => 2,
         }
       end
     end

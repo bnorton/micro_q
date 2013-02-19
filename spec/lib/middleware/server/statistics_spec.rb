@@ -27,19 +27,25 @@ describe MicroQ::Middleware::Server::Statistics, :middleware => true do
     end
 
     it 'should log a completed message' do
-      @stats.should_receive(:incr).with('messages:performed')
+      @stats.should_receive(:incr) do |*args|
+        args.should include('messages:performed')
+      end
 
       call
     end
 
     it 'should log the completed class message' do
-      @stats.should_receive(:incr).with("messages:#{@payload['class']}:performed")
+      @stats.should_receive(:incr) do |*args|
+        args.should include("messages:#{@payload['class']}:performed")
+      end
 
       call
     end
 
     it 'should log the queue' do
-      @stats.should_receive(:incr).with('queues:a-queue:performed')
+      @stats.should_receive(:incr) do |*args|
+        args.should include('queues:a-queue:performed')
+      end
 
       call
     end

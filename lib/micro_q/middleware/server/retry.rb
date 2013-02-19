@@ -20,21 +20,32 @@ module MicroQ
         rescue Exception => e
           raise e unless message['retry']
 
-          message['retried'] ||= { 'count' => 0 }
-
-          message['retried']['count'] += 1
-          message['retried']['at']    = Time.now
-          message['retried']['when']  = (Time.now + 15).to_f
-
-          statistics do |stats|
-            stats.incr(RETRY.call)
-            stats.incr(RETRY.call(message['class']))
-            stats.incr("queues:#{message['queue']}:retry")
-          end
+          retried!(message)
+          stats(message)
 
           MicroQ.push(message, message['retried'])
 
           raise e
+        end
+
+        private
+
+        def retried!(msg)
+          msg['retried'] ||= { 'count' => 0 }
+
+          msg['retried']['count'] += 1
+          msg['retried']['at']    = Time.now
+          msg['retried']['when']  = (Time.now + 15).to_f
+        end
+
+        def stats(msg)
+          statistics do |stats|
+            stats.incr(
+              RETRY.call,
+              RETRY.call(msg['class']),
+              "queues:#{msg['queue']}:retry"
+            )
+          end
         end
       end
     end

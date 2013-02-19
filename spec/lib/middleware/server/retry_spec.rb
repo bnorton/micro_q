@@ -48,19 +48,25 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
         end
 
         it 'should log the retry' do
-          @stats.should_receive(:incr).with('messages:retry')
+          @stats.should_receive(:incr) do |*args|
+            args.should include('messages:retry')
+          end
 
           safe(:call)
         end
 
         it 'should log the class\' retry' do
-          @stats.should_receive(:incr).with("messages:#{@payload['class']}:retry")
+          @stats.should_receive(:incr) do |*args|
+            args.should include("messages:#{@payload['class']}:retry")
+          end
 
           safe(:call)
         end
 
         it 'should log the queues\' retry' do
-          @stats.should_receive(:incr).with("queues:a-queue:retry")
+          @stats.should_receive(:incr) do |*args|
+            args.should include('queues:a-queue:retry')
+          end
 
           safe(:call)
         end
