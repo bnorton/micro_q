@@ -14,13 +14,7 @@ module MicroQ
         private
 
         def stats(msg)
-          statistics do |stats|
-            stats.incr(
-              PERFORMED.call,
-              PERFORMED.call(msg['class']),
-              "queues:#{msg['queue']}:performed"
-            )
-          end
+          stats_incr(msg, PERFORMED, "queues:#{msg['queue']}:performed")
         end
       end
     end

@@ -39,13 +39,7 @@ module MicroQ
         end
 
         def stats(msg)
-          statistics do |stats|
-            stats.incr(
-              RETRY.call,
-              RETRY.call(msg['class']),
-              "queues:#{msg['queue']}:retry"
-            )
-          end
+          stats_incr(msg, RETRY, "queues:#{msg['queue']}:retry")
         end
       end
     end
