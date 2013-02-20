@@ -74,23 +74,10 @@ module MicroQ
       def dequeue(limit = 30)
         return [] if limit == 0
 
-        idx = 0
+        opts = { :i => 0, :limit => limit}
         [].tap do |items|
-          entries.each do |entry|
-            items << entry unless (idx += 1) > limit
-          end if entries.any?
-
-          items.each {|i| entries.delete(i) }
-
-          available = later.select {|entry| entry['when'] < Time.now.to_f }
-
-          if available.any?
-            available.each do |entry|
-              items << entry['worker'] unless (idx += 1) > limit
-            end
-
-            available.each {|a| later.delete(a) }
-          end
+          dequeue_entries!(items, opts)
+          dequeue_later!(items, opts)
         end
       end
 
@@ -106,6 +93,26 @@ module MicroQ
       end
 
       private
+
+      def dequeue_entries!(items, options)
+        entries.each do |entry|
+          items << entry unless (options[:i] += 1) > options[:limit]
+        end if entries.any?
+
+        items.each {|i| entries.delete(i) }
+      end
+
+      def dequeue_later!(items, options)
+        available = later.select {|entry| entry['when'] < Time.now.to_f }
+
+        if available.any?
+          available.each do |entry|
+            items << entry['worker'] unless (options[:i] += 1) > options[:limit]
+          end
+
+          available.each {|a| later.delete(a) }
+        end
+      end
 
       ##
       # Parse the entries back into the queue from the filesystem
