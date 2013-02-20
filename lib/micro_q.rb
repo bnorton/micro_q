@@ -48,8 +48,8 @@ module MicroQ
 end
 
 require 'micro_q/middleware'
-require 'micro_q/dsl'
 require 'micro_q/proxies'
+require 'micro_q/dsl'
 require 'micro_q/worker'
 require 'micro_q/queue'
 

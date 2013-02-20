@@ -11,7 +11,7 @@ describe MicroQ::DSL do
     end
 
     it 'should include the dsl module' do
-      Object.should be_is_a(MicroQ::DSL)
+      Object.should be_is_a(MicroQ::DSL::ClassMethods)
     end
 
     it 'should add the async_perform method' do
