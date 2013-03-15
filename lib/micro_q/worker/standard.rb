@@ -29,9 +29,12 @@ module MicroQ
 
         value = nil
 
-        MicroQ.middleware.server.call(klass, message) do
-          value = klass.send(method, *args)
+        defer do
+          MicroQ.middleware.server.call(klass, message) do
+            value = klass.send(method, *args)
+          end
         end
+
 
         value
       end
