@@ -9,6 +9,9 @@ module MicroQ
     # The middleware chain can stop this message from executing by not yielding
     # to the given block.
     #
+    # http://www.rubydoc.info/github/celluloid/celluloid/Celluloid:defer
+    # Use Celluloid#defer to allow clean shutdown
+    #
     # A minimal message: (Calls the perform method with zero arguments)
     # { :class => 'MyWorker' }
     #
