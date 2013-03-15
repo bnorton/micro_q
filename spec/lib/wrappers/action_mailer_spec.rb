@@ -7,7 +7,7 @@ describe MicroQ::Wrapper::ActionMailer do
   end
 
   describe '#perform' do
-    let(:mail) { mock("email", :deliver => nil) }
+    let(:mail) { mock('email', :deliver => nil) }
 
     def perform
       subject.perform('MyMailer', 'mail_me', 1, 2)
@@ -36,7 +36,7 @@ describe MicroQ::Wrapper::ActionMailer do
     end
 
     describe 'when the email does not work' do
-      let(:mail) { mock("email without deliver") }
+      let(:mail) { mock('email without deliver') }
 
       before do
         mail.stub(:respond_to?).with(:deliver).and_return(false)

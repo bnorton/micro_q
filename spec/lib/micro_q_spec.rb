@@ -6,7 +6,7 @@ describe MicroQ do
       MicroQ.configure {|config| config.class.should == MicroQ::Config }
     end
 
-    it "should cache the value" do
+    it 'should cache the value' do
       configs = []
 
       2.times { MicroQ.configure {|c| configs << c } }
@@ -75,7 +75,7 @@ describe MicroQ do
     end
 
     before do
-      @manager = mock(MicroQ::Manager::Default, :start! => nil, :queue => mock("Queue"))
+      @manager = mock(MicroQ::Manager::Default, :start! => nil, :queue => mock('Queue'))
       MicroQ::Manager::Default.stub(:new).and_return(@manager)
 
       MicroQ.start

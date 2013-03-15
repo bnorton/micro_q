@@ -61,14 +61,14 @@ describe MicroQ::Proxy::Base do
           it "should have an error for #{type.inspect}" do
             options[:class] = type
 
-            subject.errors.should include("Proxies require a valid class")
+            subject.errors.should include('Proxies require a valid class')
           end
         end
       end
     end
   end
 
-  describe "#respond_to?" do
+  describe '#respond_to?' do
     it 'should be false' do
       subject.respond_to?(:not_a_method).should == false
     end

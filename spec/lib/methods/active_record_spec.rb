@@ -59,10 +59,10 @@ describe MicroQ::Methods::ActiveRecord, :active_record => true do
     it_behaves_like 'an async AR instance'
 
     describe 'when given when to run the job' do
-      let(:method) { -> { subject.async(:at => "sometime") } }
+      let(:method) { -> { subject.async(:at => 'sometime') } }
 
       it 'should pass the option' do
-        MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:at => "sometime"))
+        MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:at => 'sometime'))
 
         method.call
       end

@@ -42,7 +42,7 @@ describe MicroQ::DSL do
         method.call
       end
 
-      it 'should have the "worker" options' do
+      it 'should have the \'worker\' options' do
         MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:option => 'value')).and_return(@proxy)
 
         method.call
@@ -75,7 +75,7 @@ describe MicroQ::DSL do
         method.call
       end
 
-      it 'should have the "worker" options' do
+      it 'should have the \'worker\' options' do
         MicroQ::Proxy::Instance.should_receive(:new).with(hash_including(:option => 'value')).and_return(@proxy)
 
         method.call

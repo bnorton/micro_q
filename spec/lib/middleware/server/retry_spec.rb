@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe MicroQ::Middleware::Server::Retry, :middleware => true do
   describe '#call' do
-    let(:foo) { mock("Foo", :bar => nil) }
+    let(:foo) { mock('Foo', :bar => nil) }
     let(:block) { -> { foo.bar } }
 
     def call
@@ -16,7 +16,7 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
     end
 
     describe 'when the block raises an Exception' do
-      let(:exception) { Exception.new }
+      let(:exception) { Exception.new('an exception') }
       let(:block) { -> { raise exception } }
 
       before do
@@ -32,7 +32,7 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
         it 'should re-raise the error' do
           expect {
             call
-          }.to raise_error(exception)
+          }.to raise_error(Exception, 'an exception')
         end
       end
 
@@ -44,7 +44,7 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
         it 'should re-raise the error' do
           expect {
             call
-          }.to raise_error(exception)
+          }.to raise_error(Exception, 'an exception')
         end
 
         it 'should log the retry' do

@@ -14,7 +14,7 @@ describe MicroQ::Proxy::Instance do
     subject.class.ancestors.should include(MicroQ::Proxy::Base)
   end
 
-  describe "#respond_to?" do
+  describe '#respond_to?' do
     it 'should be false' do
       subject.respond_to?(:not_a_method).should == false
     end

@@ -61,7 +61,7 @@ describe MicroQ::Worker::Standard do
       let(:ar_worker) { {'class' => 'MyWorker', 'method' => 'ar_perform', 'args' => [1, 2], 'loader' => {'method' => 'find', 'args' => [456]}} }
 
       before do
-        @model = mock("Model", :ar_perform => nil)
+        @model = mock('Model', :ar_perform => nil)
         MyWorker.stub(:find).with(456).and_return(@model)
       end
 

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe MicroQ::Middleware::Server::Timeout, :middleware => true do
   describe '#call' do
-    let(:foo) { mock("Foo", :bar => nil) }
+    let(:foo) { mock('Foo', :bar => nil) }
     let(:block) { -> { foo.bar } }
 
     def call

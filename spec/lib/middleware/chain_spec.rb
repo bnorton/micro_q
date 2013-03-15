@@ -323,7 +323,7 @@ describe MicroQ::Middleware::Chain do
     end
 
     describe 'client' do
-      let(:opts) { mock("options") }
+      let(:opts) { mock('options') }
 
       def call
         subject.client.call(payload, opts) { }

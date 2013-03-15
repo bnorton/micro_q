@@ -1,4 +1,4 @@
-shared_examples_for "a_worker" do |method|
+shared_examples_for 'a_worker' do |method|
   describe "additions (#{method})" do
     it 'should add an async proxy' do
       subject.respond_to?(:async).should == true

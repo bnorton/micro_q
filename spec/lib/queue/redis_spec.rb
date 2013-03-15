@@ -6,7 +6,7 @@ describe MicroQ::Queue::Redis do
   describe '#sync_push' do
     it_behaves_like 'Queue#sync_push'
 
-    describe 'when given the "when" key' do
+    describe 'when given the \'when\' key' do
       let(:worker) { [item, { 'when' => (Time.now + 100).to_i }] }
 
       it 'should add to the later' do
