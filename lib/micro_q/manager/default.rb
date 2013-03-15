@@ -23,33 +23,64 @@ module MicroQ
       attr_reader :queue, :workers
 
       def start
-        count = workers.idle_size
+        count = workers.size
 
         if (messages = queue.dequeue(count)).any?
           messages.each do |message|
-            workers.perform!(message)
+            worker = workers.pop
+            @busy << worker
+
+            worker.perform!(message)
           end
         end
 
         after(2) { start }
       end
 
+      def work_done(worker)
+        @busy.delete(worker)
+        workers.push(worker)
+      end
+
       ##
       # Handle init/death of the Queue or the Worker pool
       #
       def reinitialize(*)
-        return if @shutdown
+        kill_all and return if self.class.shutdown?
 
         unless @queue && @queue.alive?
           @queue = MicroQ.config.queue.new_link
         end
 
-        unless @workers && @workers.alive?
-          @workers = MicroQ.config.worker.pool_link(:size => MicroQ.config.workers)
-        end
+        @busy ||= []
+
+        build_missing_workers
       end
 
       alias initialize reinitialize
+
+      # Don't shrink the pool if the config changes
+      def build_missing_workers
+        @workers ||= []
+
+        workers.reject! {|worker| !worker.alive? }
+
+        [MicroQ.config.workers - (workers.size + @busy.size), 0].max.times do
+          workers << MicroQ.config.worker.new_link(current_actor)
+        end
+      end
+
+      def kill_all
+        (@workers + @busy).each {|w| w.terminate if w.alive? }
+      end
+
+      def self.shutdown?
+        !!@shutdown
+      end
+
+      def self.shutdown!
+        @shutdown = true
+      end
     end
   end
 end

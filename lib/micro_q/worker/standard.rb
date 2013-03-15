@@ -18,22 +18,32 @@ module MicroQ
     class Standard
       include Celluloid
 
+      def initialize(manager)
+        @manager = manager
+      end
+
       def perform(message)
+        klass = fetch_klass(message)
+
+        method = message['method'] || 'perform'
+        args = message['args']
+
+        defer do
+          MicroQ.middleware.server.call(klass, message) do
+            klass.send(method, *args)
+          end
+        end
+
+        @manager.work_done!(current_actor)
+      end
+
+      def fetch_klass(message)
         klass = MicroQ::Util.constantize(message['class'].to_s)
 
         loader = message['loader'] ||= { 'method' => 'new' }
         klass = klass.send(loader['method'], *loader['args']) if loader['method']
 
-        method = message['method'] || 'perform'
-        args = message['args']
-
-        value = nil
-
-        MicroQ.middleware.server.call(klass, message) do
-          value = klass.send(method, *args)
-        end
-
-        value
+        klass
       end
     end
   end

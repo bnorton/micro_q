@@ -71,5 +71,5 @@ require 'micro_q/statistics/redis'
 
 # There is a better way coming soon 2/18/13
 at_exit do
-  MicroQ.send(:manager).instance_variable_set(:@shutdown, true)
+  MicroQ::Manager::Default.shutdown!
 end

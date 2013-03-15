@@ -4,11 +4,14 @@ describe MicroQ::Worker::Standard do
   let(:worker) { {'class' => 'MyWorker', 'args' => [1, 'value']} }
   let(:other_worker) { {'class' => 'MyWorker', 'method' => 'process', 'args' => [2, 'other-value']} }
 
+  let(:manager) { mock(MicroQ::Manager::Default, :work_done! => nil) }
+  subject { MicroQ::Worker::Standard.new(manager) }
+
   class MyWorker
-    def self.seed(*args); "SEEDED #{args.inspect}" end
-    def ar_perform(*args);"AR PERFORM! #{args.inspect}" end
-    def perform(*args);   "PERFORMED! #{args.inspect}" end
-    def process(*args);   "PROCESSED! #{args.inspect}" end
+    def self.seed(*) end
+    def ar_perform(*) end
+    def perform(*) end
+    def process(*) end
   end
 
   describe '#perform' do
@@ -16,9 +19,11 @@ describe MicroQ::Worker::Standard do
       subject.perform(item)
     end
 
-    it 'should call the method' do
-      perform(worker).should == 'PERFORMED! [1, "value"]'
-      perform(other_worker).should == 'PROCESSED! [2, "other-value"]'
+    it 'should call the methods' do
+      MyWorker.any_instance.should_receive(:perform).with(1, 'value')
+      MyWorker.any_instance.should_receive(:process).with(2, 'other-value')
+
+      perform(worker); perform(other_worker)
     end
 
     it 'should process the middleware chain' do
@@ -43,6 +48,12 @@ describe MicroQ::Worker::Standard do
       perform(other_worker)
     end
 
+    it 'should inform the manager that it finished' do
+      manager.should_receive(:work_done!).with(subject)
+
+      perform(worker)
+    end
+
     describe 'when using the class loader' do
       let(:class_worker) { {'class' => 'MyWorker', 'method' => 'seed', 'args' => [3, 45], 'loader' => {}} }
 
@@ -53,7 +64,9 @@ describe MicroQ::Worker::Standard do
       end
 
       it 'should call the method' do
-        perform(class_worker).should == "SEEDED [3, 45]"
+        MyWorker.should_receive(:seed)
+
+        perform(class_worker)
       end
     end
 
@@ -78,10 +91,12 @@ describe MicroQ::Worker::Standard do
       end
 
       it 'should call the method b' do
-        worker = MyWorker.new
+        worker = mock(MyWorker)
         MyWorker.stub(:find).with(456).and_return(worker)
 
-        perform(ar_worker).should == 'AR PERFORM! [1, 2]'
+        worker.should_receive(:ar_perform).with(1, 2)
+
+        perform(ar_worker)
       end
     end
   end

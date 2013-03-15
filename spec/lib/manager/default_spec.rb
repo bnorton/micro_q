@@ -3,6 +3,10 @@ require 'spec_helper'
 describe MicroQ::Manager::Default do
   let(:create) { -> { subject } }
 
+  before do
+    MicroQ.config.workers = 2
+  end
+
   describe '.new' do
     before do
       MicroQ.config.workers = 4
@@ -14,14 +18,23 @@ describe MicroQ::Manager::Default do
       create.call
     end
 
-    it 'should create a worker pool' do
-      MicroQ::Worker::Standard.should_receive(:pool_link)
+    it 'should create a worker links' do
+      MicroQ::Worker::Standard.should_receive(:new_link).at_least(1)
 
       create.call
     end
 
-    it 'should be a config.workers size pool' do
-      MicroQ::Worker::Standard.should_receive(:pool_link).with(hash_including(:size => 4))
+    it 'should create config.workers number of links' do
+      MicroQ::Worker::Standard.should_receive(:new_link).exactly(4)
+
+      create.call
+    end
+
+    it 'should pass itself to the worker' do
+      MicroQ::Worker::Standard.should_receive(:new_link).at_least(1) do |manager|
+        manager.class.should == MicroQ::Manager::Default
+        manager.wrapped_object.class.should == MicroQ::Manager::Default
+      end
 
       create.call
     end
@@ -35,38 +48,37 @@ describe MicroQ::Manager::Default do
 
   describe '#workers' do
     it 'should be the workers' do
-      subject.workers.class.should == Celluloid::PoolManager
-      subject.workers.inspect.should match(/MicroQ::Worker::Standard/)
+      subject.workers.collect {|w| w.wrapped_object.class}.uniq.should == [MicroQ::Worker::Standard]
     end
   end
 
   describe '#start' do
     it 'should not be performing' do
-      subject.workers.should_not_receive(:perform!)
+      subject.workers.each{|w| w.should_not_receive(:perform!) }
 
       subject.start
     end
 
     describe 'when the queue has dequeue-able items' do
       before do
-        @item, @other_item = mock(Hash), mock(Hash)
+        @item, @other_item = mock('Hash 1'), mock('Hash 2')
         @queue = mock(MicroQ::Queue::Default, :dequeue => [@item, @other_item])
         MicroQ::Queue::Default.stub(:new_link).and_return(@queue)
 
-        @pool = mock(Celluloid::PoolManager, :idle_size => 1234, :perform! => nil)
-        MicroQ::Worker::Standard.stub(:pool_link).and_return(@pool)
+        @worker1 = mock(MicroQ::Worker::Standard, :perform! => nil)
+        @worker2 = mock(MicroQ::Worker::Standard, :perform! => nil)
+        MicroQ::Worker::Standard.stub(:new_link).and_return(@worker1, @worker2)
       end
 
       it 'should dequeue the number of free workers' do
-        @queue.should_receive(:dequeue).with(1234)
+        @queue.should_receive(:dequeue).with(2)
 
         subject.start
       end
 
       it 'should perform the items' do
-        @pool.should_receive(:perform!).with(@item) do
-          @pool.should_receive(:perform!).with(@other_item)
-        end
+        @worker1.should_receive(:perform!).with(@other_item)
+        @worker2.should_receive(:perform!).with(@item)
 
         subject.start
       end
@@ -80,15 +92,16 @@ describe MicroQ::Manager::Default do
       @queue = mock(MicroQ::Queue::Default, :alive? => true, :dequeue => [])
       MicroQ::Queue::Default.stub(:new_link).and_return(@queue)
 
-      @pool = mock(Celluloid::PoolManager, :alive? => true, :idle_size => 0)
-      MicroQ::Worker::Standard.stub(:pool_link).and_return(@pool)
+      @worker1 = mock(MicroQ::Worker::Standard, :alive? => true, :perform! => nil)
+      @worker2 = mock(MicroQ::Worker::Standard, :alive? => true, :perform! => nil)
+      MicroQ::Worker::Standard.stub(:new_link).and_return(@worker1, @worker2)
 
       subject.start
     end
 
     it 'should have the items' do
       subject.queue.should == @queue
-      subject.workers.should == @pool
+      subject.workers.should == [@worker1, @worker2]
     end
 
     describe 'when the queue died' do
@@ -112,24 +125,24 @@ describe MicroQ::Manager::Default do
       end
     end
 
-    describe 'when the pool died' do
+    describe 'when a worker has died' do
       before do
-        @pool.stub(:alive?).and_return(false)
+        @worker2.stub(:alive?).and_return(false)
 
-        @new_pool = mock(Celluloid::PoolManager)
-        MicroQ::Worker::Standard.stub(:pool_link).and_return(@new_pool)
+        @new_worker2 = mock(MicroQ::Worker::Standard)
+        MicroQ::Worker::Standard.stub(:new_link).and_return(@new_worker2)
       end
 
-      it 'should restart the pool' do
-        MicroQ::Worker::Standard.should_receive(:pool_link).and_return(@new_pool)
+      it 'should restart the dead worker' do
+        MicroQ::Worker::Standard.should_receive(:new_link).and_return(@new_worker2)
 
         death.call
       end
 
-      it 'should have the new pool' do
+      it 'should have the new worker' do
         death.call
 
-        subject.workers.should == @new_pool
+        subject.workers.should == [@worker1, @new_worker2]
       end
     end
   end
