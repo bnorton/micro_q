@@ -13,6 +13,5 @@ notifications:
       - brian.nort@gmail.com
 matrix:
   allow_failures:
+    - rvm: 1.9.3
     - rvm: 1.9.2
-    - rvm: rbx-19mode
-    - rvm: 2.0.0
