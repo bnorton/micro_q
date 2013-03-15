@@ -18,3 +18,7 @@ matrix:
     - rvm: 1.9.2
     - rvm: rbx-19mode
     - rvm: rbx-nightly-19mode
+branches:
+  only:
+    - master
+    - /^((feature)|(hotfix))\/.+/
