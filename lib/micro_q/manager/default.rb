@@ -63,11 +63,15 @@ module MicroQ
       def build_missing_workers
         @workers ||= []
 
-        workers.reject! {|worker| !worker.alive? }
+        workers.select!(&:alive?)
 
-        [MicroQ.config.workers - (workers.size + @busy.size), 0].max.times do
+        missing_worker_count.times do
           workers << MicroQ.config.worker.new_link(current_actor)
         end
+      end
+
+      def missing_worker_count
+        [MicroQ.config.workers - (workers.size + @busy.size), 0].max
       end
 
       def kill_all
