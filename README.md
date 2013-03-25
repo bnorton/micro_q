@@ -49,6 +49,9 @@ MyWorker.update_async(:user_id => user.id)
 
 Safely using an ActiveRecord instance via the [Custom Loader](https://github.com/bnorton/micro_q/wiki/Loaders) API 
 ```ruby
+# config/initializers/micro_q
+require 'micro_q/methods/active_record'
+
 # app/models/user.rb
 class User < Activerecord::Base
   def update_social_data
