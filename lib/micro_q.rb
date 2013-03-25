@@ -6,6 +6,8 @@ require 'micro_q/util'
 require 'micro_q/config'
 require 'micro_q/manager'
 
+Celluloid.logger = nil
+
 module MicroQ
   def self.config
     @config ||= Config.new
