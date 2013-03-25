@@ -24,7 +24,7 @@ Or install it:
 ```ruby
 ## A typical worker class
 class MyWorker
-  worker :update # sets up the dsl and adds additional async_ methods
+  worker :update # sets up the dsl and adds additional _async methods
 
   def perform
     # do some performing here
@@ -39,8 +39,10 @@ end
 ###Simple
 
 ```ruby
-MyWorker.async_perform
-MyWorker.async_update(:user_id => user.id)
+Called on the class invoked on an instance.
+
+MyWorker.perform_async
+MyWorker.update_async(:user_id => user.id)
 ```
 
 ###Advanced

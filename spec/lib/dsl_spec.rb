@@ -14,16 +14,16 @@ describe MicroQ::DSL do
       Object.should be_is_a(MicroQ::DSL::ClassMethods)
     end
 
-    it 'should add the async_perform method' do
-      OtherWorker.should be_respond_to(:async_perform)
+    it 'should add the perform_async method' do
+      OtherWorker.should be_respond_to(:perform_async)
     end
 
-    it 'should add async_ prefixed method when given them' do
-      OtherWorker.should be_respond_to(:async_update)
+    it 'should add _async post-fixed method when given them' do
+      OtherWorker.should be_respond_to(:update_async)
     end
 
-    describe 'when calling the async_ method' do
-      let(:method) { ->(*args) { OtherWorker.async_perform(*args) } }
+    describe 'when calling the _async method' do
+      let(:method) { ->(*args) { OtherWorker.perform_async(*args) } }
 
       before do
         @proxy = mock(MicroQ::Proxy::Instance, :perform => nil)
@@ -61,8 +61,8 @@ describe MicroQ::DSL do
       end
     end
 
-    describe 'when calling the async_something method' do
-      let(:method) { ->(*args) { OtherWorker.async_update(*args) } }
+    describe 'when calling the something_async method' do
+      let(:method) { ->(*args) { OtherWorker.update_async(*args) } }
 
       before do
         @proxy = mock(MicroQ::Proxy::Instance, :update => nil)
@@ -101,9 +101,9 @@ describe MicroQ::DSL do
         worker :other_method, :queue => 'my-queue', :option => 'value'
       end
 
-      it 'should have the async_ methods' do
-        OptionWorker.should be_respond_to(:async_method_name)
-        OptionWorker.should be_respond_to(:async_other_method)
+      it 'should have the _async methods' do
+        OptionWorker.should be_respond_to(:method_name_async)
+        OptionWorker.should be_respond_to(:other_method_async)
       end
 
       it 'should store the options' do

@@ -1,7 +1,7 @@
 module MicroQ
   ##
   # Convenience methods for calling methods asynchronously
-  # Adds async_perform by default
+  # Adds perform_async by default
   #
   # Usage
   # class MyWorker
@@ -11,23 +11,23 @@ module MicroQ
   #   end
   # end
   #
-  # MyWorker.async_update
+  # MyWorker.update_async
   # is the same as
   # MyWorker.new.async(:queue => 'non-default').update
   #
   module DSL
     ##
     # For each of the methods given to the Object.worker method
-    # define the async_ prefixed version for convenience
+    # define the _async post-fixed version for convenience
     #
     def self.attach_async_methods(target, opts)
       target.class_eval do
         (target.microq_options[:methods] |= opts.flatten).each do |method|
-          target.define_singleton_method(:"async_#{method}") do |*args|
+          target.define_singleton_method(:"#{method}_async") do |*args|
             MicroQ::Proxy::Instance.new(
               target.microq_options.dup.merge(:class => self)
             ).send(method, *args)
-          end unless respond_to?(:"async_#{method}")
+          end unless respond_to?(:"#{method}_async")
         end
       end
     end
