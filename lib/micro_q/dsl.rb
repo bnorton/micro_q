@@ -23,13 +23,17 @@ module MicroQ
     def self.attach_async_methods(target, opts)
       target.class_eval do
         (target.microq_options[:methods] |= opts.flatten).each do |method|
-          target.define_singleton_method(:"#{method}_async") do |*args|
-            MicroQ::Proxy::Instance.new(
-              target.microq_options.dup.merge(:class => self)
-            ).send(method, *args)
-          end unless respond_to?(:"#{method}_async")
+          DSL.define_proxy_method target, method
         end
       end
+    end
+
+    def self.define_proxy_method(target, method)
+      target.define_singleton_method(:"#{method}_async") do |*args|
+        MicroQ::Proxy::Instance.new(
+          target.microq_options.dup.merge(:class => self)
+        ).send(method, *args)
+      end unless respond_to?(:"#{method}_async")
     end
 
     module ClassMethods
