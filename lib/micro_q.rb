@@ -63,7 +63,6 @@ require 'micro_q/wrappers/action_mailer'
 
 require 'micro_q/methods/class'
 require 'micro_q/methods/instance'
-require 'micro_q/methods/active_record'
 require 'micro_q/methods/action_mailer'
 
 require 'micro_q/statistics/base'
