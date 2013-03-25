@@ -18,7 +18,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w(lib)
 
   gem.add_dependency             "celluloid", '~> 0.12.0'
-  gem.add_dependency             "redis"
   gem.add_dependency             "connection_pool"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"

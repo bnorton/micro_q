@@ -1,7 +1,6 @@
 require 'timeout'
 require 'celluloid'
 require 'connection_pool'
-require 'redis'
 
 require 'micro_q/util'
 require 'micro_q/config'
