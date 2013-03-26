@@ -19,9 +19,20 @@ RSpec.configure do |config|
 
   config.order = 'default'
 
+  config.before :all do
+    GC.disable
+  end
+
   config.before :each do
     MicroQ.send :clear
     MicroQ.redis {|r| r.flushdb }
+  end
+
+  config.before :each, :middleware => true do
+    class WorkerClass; end
+
+    @worker = WorkerClass.new
+    @payload = { 'class' => 'WorkerClass', 'args' => [1, 2], 'queue' => 'a-queue'}
   end
 
   config.before :each, :active_record => true do
@@ -52,11 +63,8 @@ RSpec.configure do |config|
     @_db.rollback
   end
 
-  config.before :each, :middleware => true do
-    class WorkerClass; end
-
-    @worker = WorkerClass.new
-    @payload = { 'class' => 'WorkerClass', 'args' => [1, 2], 'queue' => 'a-queue'}
+  config.after :all do
+    GC.enable
   end
 end
 
