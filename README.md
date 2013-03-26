@@ -66,6 +66,52 @@ def update
 end
 ```
 
+##Queues
+By default the queue is an in-memory queue meaning that messages are shared per-process
+and any unprocessed messages are saved to a file when shutdown occurs.
+
+The **Redis queue** requires some configuration in your gemfile to keep the runtime dependencies to a minimum
+```ruby
+# Gemfile
+gem 'redis'
+gem 'micro_q'
+
+# config/initializers/micro_q.rb
+require 'redis'
+require 'micro_q'
+
+# when MicroQ starts simply use the redis queue
+MicroQ.configure do |config|
+  config.queue = MicroQ::Queue::Redis
+end
+```
+
+The **Amazon SQS (coming soon) queue** require some extra configuration in your gemfile.
+```ruby
+# Gemfile
+gem 'aws-sdk'
+gem 'micro_q'
+
+# config/initializers/micro_q.rb
+require 'aws-sdk'
+require 'micro_q'
+
+# when MicroQ starts simply use the sqs queue
+MicroQ.configure do |config|
+  config.queue = MicroQ::Queue::Sqs
+  config.aws_credentials = { :key => 'YOUR KEY', :secret => 'YOUR SECRET' }
+
+  # For the :low queue: Message processing timeout (the default) will be 10 minutes.
+  # For the :critical queue: Message processing timeout is 2 minutes.
+  config.sqs = { :queues => { :low => {}, :critical => { :timeout => 120 } }
+end
+
+# Then just use the queues in your workers
+class SomeWorker
+  worker :queue => :critical
+end
+```
+
 ## Contributing
 
 1. Fork it
