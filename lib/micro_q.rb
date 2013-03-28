@@ -55,10 +55,12 @@ require 'micro_q/worker'
 require 'micro_q/queue'
 require 'micro_q/sqs_client'
 
+require 'micro_q/fetchers/sqs'
 require 'micro_q/redis'
+require 'micro_q/inspect'
 
 require 'micro_q/wrappers/action_mailer'
-require 'micro_q/fetchers/sqs'
+
 
 # add Class and Instance methods first then
 # override with additional extensions
