@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency             "celluloid", '~> 0.12.0'
   gem.add_dependency             "connection_pool"
   gem.add_development_dependency "rake"
+  gem.add_development_dependency "fuubar"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "timecop"
   gem.add_development_dependency "psych"
