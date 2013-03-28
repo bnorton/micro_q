@@ -94,6 +94,25 @@ describe MicroQ::Manager::Default do
 
           subject.start
         end
+
+        describe 'when in worker mode' do
+          before do
+            MicroQ.config['worker_mode?'] = true
+          end
+
+          it 'should dequeue the number of free workers' do
+            @queue.should_receive(:dequeue).with(2)
+
+            subject.start
+          end
+
+          it 'should perform the items' do
+            @worker1.should_receive(:perform!).with(@other_item)
+            @worker2.should_receive(:perform!).with(@item)
+
+            subject.start
+          end
+        end
       end
     end
   end
@@ -156,6 +175,19 @@ describe MicroQ::Manager::Default do
         death.call
 
         subject.workers.should == [@worker1, @new_worker2]
+      end
+
+      describe 'when in SQS mode' do
+        before do
+          MicroQ.config['sqs?'] = true
+        end
+
+        it 'should have the original items' do
+          death.call
+
+          subject.queue.should == @queue
+          subject.workers.should == [@worker1, @worker2]
+        end
       end
     end
   end
