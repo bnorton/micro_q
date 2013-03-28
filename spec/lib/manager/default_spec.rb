@@ -82,6 +82,19 @@ describe MicroQ::Manager::Default do
 
         subject.start
       end
+
+      describe 'when the manager is in SQS mode' do
+        before do
+          MicroQ.config['sqs?'] = true
+        end
+
+        it 'should not perform the items' do
+          @queue.should_not_receive(:dequeue)
+          [@worker1, @worker2].each {|w| w.should_not_receive(:perform!) }
+
+          subject.start
+        end
+      end
     end
   end
 

@@ -97,14 +97,13 @@ require 'aws-sdk'
 require 'micro_q'
 
 # when MicroQ starts simply use the sqs queue
+# this will take care of all other switchover for the system
 MicroQ.configure do |config|
   config.queue = MicroQ::Queue::Sqs
-  config.aws_credentials = { :key => 'YOUR KEY', :secret => 'YOUR SECRET' }
-
-  # For the :low queue: Message processing timeout (the default) will be 10 minutes.
-  # For the :critical queue: Message processing timeout is 2 minutes.
-  config.sqs = { :queues => { :low => {}, :critical => { :timeout => 120 } }
+  config.aws = { :key => 'YOUR KEY', :secret => 'YOUR SECRET' }
 end
+
+**Note that when using the SQS Queue only the MicroQ's started via command-line will actually process messages**
 
 # Then just use the queues in your workers
 class SomeWorker

@@ -53,10 +53,12 @@ require 'micro_q/proxies'
 require 'micro_q/dsl'
 require 'micro_q/worker'
 require 'micro_q/queue'
+require 'micro_q/sqs_client'
 
 require 'micro_q/redis'
 
 require 'micro_q/wrappers/action_mailer'
+require 'micro_q/fetchers/sqs'
 
 # add Class and Instance methods first then
 # override with additional extensions
@@ -72,4 +74,5 @@ require 'micro_q/statistics/redis'
 # There is a better way coming soon 2/18/13
 at_exit do
   MicroQ::Manager::Default.shutdown!
+  MicroQ::Queue::Sqs.shutdown!
 end

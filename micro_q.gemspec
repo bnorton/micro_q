@@ -27,4 +27,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "actionmailer", "> 3.2.0"
   gem.add_development_dependency "sqlite3-ruby"
   gem.add_development_dependency "mock_redis"
+  gem.add_development_dependency "aws-sdk"
 end

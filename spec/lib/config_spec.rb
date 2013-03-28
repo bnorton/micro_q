@@ -36,6 +36,14 @@ describe MicroQ::Config do
       subject.timeout.should == 120
     end
 
+    it 'should have the default env' do
+      subject.env.should == 'development'
+    end
+
+    it 'should not be in sqs mode' do
+      subject.should_not be_sqs
+    end
+
     it 'should have middleware chain' do
       subject.middleware.class.should == MicroQ::Middleware::Chain
     end
@@ -66,6 +74,45 @@ describe MicroQ::Config do
 
     it 'should have the default statistics' do
       subject.statistics.should == MicroQ::Statistics::Default
+    end
+  end
+
+  describe 'when rails is defined' do
+    before do
+      module Rails end
+      def Rails.env; 'the-env' end
+    end
+
+    it 'should have the rails env' do
+      subject.env.should == 'the-env'
+    end
+  end
+
+  describe '#queue=' do
+    before do
+      subject.queue = 'blah-blah'
+    end
+
+    it 'should have the given queue' do
+      subject.queue.should == 'blah-blah'
+    end
+
+    describe 'when setting the SQS queue' do
+      before do
+        subject.queue = MicroQ::Queue::Sqs
+      end
+
+      it 'should have the given queue' do
+        subject.queue.should == MicroQ::Queue::Sqs
+      end
+
+      it 'should enable sqs mode' do
+        subject.sqs?.should == true
+      end
+
+      it 'should have zero workers' do
+        subject.workers.should == 0
+      end
     end
   end
 end

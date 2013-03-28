@@ -65,11 +65,6 @@ describe MicroQ::Queue::Redis do
   describe '#dequeue' do
     let(:item) { { 'class' => 'MyWorker', 'args' => [] } }
 
-    class MyWorker
-      def perform(*)
-      end
-    end
-
     describe 'when there are entries' do
       before do
         subject.sync_push(item)
