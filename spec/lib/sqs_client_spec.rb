@@ -141,8 +141,26 @@ describe MicroQ::SqsClient, :aws => true do
       send_message
     end
 
+    it 'should not delay the message' do
+      @client.should_receive(:send_message).with(hash_excluding(:delay_seconds)).and_return(@response)
+
+      send_message
+    end
+
     it 'should return the message id' do
       send_message.should == '10'
+    end
+
+    describe 'when the message is to be run later' do
+      before do
+        message['run_at'] = (Time.now + 60 * 60)
+      end
+
+      it 'should set the delay for sqs' do
+        @client.should_receive(:send_message).with(hash_including(:delay_seconds => 60*60)).and_return(@response)
+
+        send_message
+      end
     end
   end
 end

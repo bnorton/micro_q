@@ -25,10 +25,14 @@ module MicroQ
     end
 
     def messages_create(message)
-      client.send_message(
+      attrs = {
         :queue_url => url,
         :message_body => message.to_json
-      )[:message_id]
+      }
+
+      attrs[:delay_seconds] = (message['run_at'].to_i - Time.now.to_i) if message.key?('run_at')
+
+      client.send_message(attrs)[:message_id]
     end
 
     private

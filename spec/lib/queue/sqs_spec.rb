@@ -50,15 +50,47 @@ describe MicroQ::Queue::Sqs do
   end
 
   describe '#sync_push' do
-      it_behaves_like 'Queue#sync_push'
+    before do
+      @fetchers = [:low, :default, :critical].collect do |name|
+        mock('MicroQ::Fetcher::Sqs : ' + name.to_s).tap do |fetcher|
+          MicroQ::Fetcher::Sqs.stub(:new_link).with(name.to_s, anything).and_return(fetcher)
+        end
+      end
+    end
+
+    it 'should add to the entries' do
+      @fetchers[1].should_receive(:add_message).with(item)
+
+      subject.sync_push(item)
+    end
+
+    it 'should stringify the class' do
+      @fetchers[1].should_receive(:add_message).with(hash_including('class' => 'MyWorker'))
+
+      subject.sync_push(:class => MyWorker)
+    end
+
+    [:low, :default, :critical].each_with_index do |name, i|
+      describe "when the message has a queue named #{name}" do
+        before do
+          item['queue'] = name
+        end
+
+        it 'should create the message on the right queue' do
+          @fetchers[i].should_receive(:add_message).with(item)
+
+          subject.sync_push(item)
+        end
+      end
+    end
 
     describe 'when given the \'when\' key' do
       let(:worker) { [item, { 'when' => (Time.now + 100).to_i }] }
 
       it 'should schedule the item for later' do
-        subject.sync_push(*worker)
+        @fetchers[1].should_receive(:add_message).with(item, (Time.now + 100).to_i)
 
-        subject.later.should include(worker.last.merge('worker' => item))
+        subject.sync_push(*worker)
       end
 
       it 'should process the middleware chain' do
@@ -76,9 +108,22 @@ describe MicroQ::Queue::Sqs do
       let(:worker) { [item, { :when => (Time.now + 100).to_i }] }
 
       it 'should schedule the item for later' do
-        subject.sync_push(*worker)
+        @fetchers[1].should_receive(:add_message).with(item, (Time.now + 100).to_i)
 
-        subject.later.should include({'when' => worker.last[:when]}.merge('worker' => item))
+        subject.sync_push(*worker)
+      end
+    end
+
+    describe 'client middleware' do
+      it 'should process the middleware chain' do
+        MicroQ.middleware.client.should_receive(:call) do |payload, opts|
+          payload['class'].should == 'MyWorker'
+          payload['args'].should == [4]
+
+          opts['when'].should == 'now'
+        end
+
+        subject.sync_push(item, 'when' => 'now')
       end
     end
   end

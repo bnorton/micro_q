@@ -64,7 +64,7 @@ module MicroQ
 
       # Don't shrink the pool if the config changes
       def build_missing_workers
-        return if queue_only?
+        #return if queue_only?
 
         workers.select!(&:alive?)
 

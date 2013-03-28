@@ -5,6 +5,11 @@ describe MicroQ::Fetcher::Sqs do
 
   subject { MicroQ::Fetcher::Sqs.new(:low, queue) }
 
+  before do
+    @client = mock(MicroQ::SqsClient, :messages => [])
+    MicroQ::SqsClient.stub(:new => @client)
+  end
+
   describe '.new' do
     it 'should have the queue name' do
       subject.name.should == 'low'
@@ -12,11 +17,6 @@ describe MicroQ::Fetcher::Sqs do
   end
 
   describe '#start' do
-    before do
-      @client = mock(MicroQ::SqsClient, :messages => [])
-      MicroQ::SqsClient.stub(:new => @client)
-    end
-
     it 'should create an sqs client' do
       MicroQ::SqsClient.should_receive(:new).with('low').and_return(@client)
 
@@ -54,6 +54,27 @@ describe MicroQ::Fetcher::Sqs do
         queue.should_receive(:receive_messages!).with(messages)
 
         subject.start
+      end
+    end
+  end
+
+  describe '#add_message' do
+    let(:message) { {'class' => 'FooBar'} }
+    let(:add_message) { subject.add_message(message) }
+
+    it 'should create the message' do
+      @client.should_receive(:messages_create).with(message)
+
+      add_message
+    end
+
+    describe 'when the message has an associated time' do
+      let(:add_message) { subject.add_message(message, Time.now.to_i) }
+
+      it 'should send the time' do
+        @client.should_receive(:messages_create).with(message.merge('run_at' => Time.now.to_i))
+
+        add_message
       end
     end
   end

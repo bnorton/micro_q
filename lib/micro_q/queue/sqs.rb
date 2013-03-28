@@ -3,6 +3,8 @@ module MicroQ
     class Sqs
       include Celluloid
 
+      exit_handler :build_missing_fetchers
+
       attr_accessor :messages
       attr_reader   :fetchers, :entries, :later
 
@@ -24,14 +26,13 @@ module MicroQ
         item['class'] = item['class'].to_s
 
         MicroQ.middleware.client.call(item, options) do
+          args, queue_name = [item], verify_queue(item['queue'].to_s)
+
           if (time = options['when'])
-            @later.push(
-              'when' => time.to_f,
-              'worker' => item
-            )
-          else
-            @entries.push(item)
+            args << time.to_f
           end
+
+          @fetcher_map[queue_name].add_message(*args)
         end
       end
 
@@ -51,6 +52,10 @@ module MicroQ
         end
       end
 
+      def verify_queue(name)
+        QUEUES_KEYS.include?(name) ? name : 'default'
+      end
+
       def self.shutdown!
         @shutdown = true
       end
@@ -64,7 +69,7 @@ module MicroQ
       def build_missing_fetchers
         return if self.class.shutdown?
 
-        @fetchers = QUEUES.keys.map do |name|
+        @fetchers = QUEUES_KEYS.map do |name|
           ((existing = @fetcher_map[name]) && existing.alive? && existing) ||
             MicroQ::Fetcher::Sqs.new_link(name, current_actor).tap do |fetcher|
               @fetcher_map[name] = fetcher
@@ -72,7 +77,8 @@ module MicroQ
         end
       end
 
-      QUEUES = { :low => 1, :default => 3, :critical => 5 }
+      QUEUES = { 'low' => 1, 'default' => 3, 'critical' => 5 }
+      QUEUES_KEYS = QUEUES.keys
     end
   end
 end
