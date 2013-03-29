@@ -42,6 +42,8 @@ module MicroQ
       end
 
       @data['queue'] = q
+    rescue LoadError
+      raise "Looks you need `gem 'aws-sdk'` in your Gemfile to use the SQS queue."
     end
 
     def method_missing(method, *args)
