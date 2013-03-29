@@ -109,10 +109,6 @@ describe MicroQ::Config do
       it 'should enable sqs mode' do
         subject.sqs?.should == true
       end
-
-      it 'should have zero workers' do
-        subject.workers.should == 0
-      end
     end
   end
 end

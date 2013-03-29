@@ -38,7 +38,6 @@ module MicroQ
         require 'aws-sdk'
 
         @data['sqs?'] = true
-        @data['workers'] = 0
       end
 
       @data['queue'] = q
