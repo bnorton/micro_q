@@ -13,11 +13,13 @@ module MicroQ
         'workers' => 5,
         'timeout' => 120,
         'interval' => 5,
+        'env' => defined?(Rails) ? Rails.env : 'development',
         'middleware' => Middleware::Chain.new,
         'manager' => Manager::Default,
         'worker' => Worker::Standard,
         'queue' => Queue::Default,
         'statistics' => Statistics::Default,
+        'aws' => {},
         'redis_pool' => { :size => 15, :timeout => 1 },
         'redis' => { :host => 'localhost', :port => 6379 }
       }
@@ -29,6 +31,19 @@ module MicroQ
 
     def [](key)
       @data[key.to_s]
+    end
+
+    def queue=(q)
+      if q == Queue::Sqs
+        require 'aws-sdk'
+
+        @data['sqs?'] = true
+        @data['workers'] = 0
+      end
+
+      @data['queue'] = q
+    rescue LoadError
+      raise "Looks you need `gem 'aws-sdk'` in your Gemfile to use the SQS queue."
     end
 
     def method_missing(method, *args)

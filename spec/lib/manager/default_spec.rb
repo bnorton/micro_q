@@ -82,6 +82,38 @@ describe MicroQ::Manager::Default do
 
         subject.start
       end
+
+      describe 'when the manager is in SQS mode' do
+        before do
+          MicroQ.config['sqs?'] = true
+        end
+
+        it 'should not perform the items' do
+          @queue.should_not_receive(:dequeue)
+          [@worker1, @worker2].each {|w| w.should_not_receive(:perform!) }
+
+          subject.start
+        end
+
+        describe 'when in worker mode' do
+          before do
+            MicroQ.config['worker_mode?'] = true
+          end
+
+          it 'should dequeue the number of free workers' do
+            @queue.should_receive(:dequeue).with(2)
+
+            subject.start
+          end
+
+          it 'should perform the items' do
+            @worker1.should_receive(:perform!).with(@other_item)
+            @worker2.should_receive(:perform!).with(@item)
+
+            subject.start
+          end
+        end
+      end
     end
   end
 
@@ -143,6 +175,43 @@ describe MicroQ::Manager::Default do
         death.call
 
         subject.workers.should == [@worker1, @new_worker2]
+      end
+
+      describe 'when a busy worker has died' do
+        before do
+          subject.wrapped_object.instance_variable_set(:@busy, [@worker2])
+        end
+
+        it 'should restart the dead worker' do
+          MicroQ::Worker::Standard.should_receive(:new_link).and_return(@new_worker2)
+
+          death.call
+        end
+
+        it 'should remove the worker from the busy list' do
+          death.call
+
+          subject.wrapped_object.instance_variable_get(:@busy).should == []
+        end
+
+        it 'should have the new worker' do
+          death.call
+
+          subject.workers.should == [@worker1, @new_worker2]
+        end
+      end
+
+      describe 'when in SQS mode' do
+        before do
+          MicroQ.config['sqs?'] = true
+        end
+
+        it 'should have the original items' do
+          death.call
+
+          subject.queue.should == @queue
+          subject.workers.should == [@worker1, @worker2]
+        end
       end
     end
   end
