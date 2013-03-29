@@ -23,6 +23,8 @@ module MicroQ
       attr_reader :queue, :workers
 
       def start
+        return if queue_only?
+
         count = workers.size
 
         if (messages = queue.dequeue(count)).any?
@@ -53,6 +55,7 @@ module MicroQ
         end
 
         @busy ||= []
+        @workers ||= []
 
         build_missing_workers
       end
@@ -61,9 +64,10 @@ module MicroQ
 
       # Don't shrink the pool if the config changes
       def build_missing_workers
-        @workers ||= []
+        return if queue_only?
 
         workers.select!(&:alive?)
+        @busy.select!(&:alive?)
 
         missing_worker_count.times do
           workers << MicroQ.config.worker.new_link(current_actor)
@@ -76,6 +80,10 @@ module MicroQ
 
       def kill_all
         (@workers + @busy).each {|w| w.terminate if w.alive? }
+      end
+
+      def queue_only?
+        @queue_only ||= MicroQ.config.sqs? && !MicroQ.config.worker_mode?
       end
 
       def self.shutdown?

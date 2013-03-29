@@ -19,7 +19,9 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency             "celluloid", '~> 0.12.0'
   gem.add_dependency             "connection_pool"
+  gem.add_dependency             "slop"
   gem.add_development_dependency "rake"
+  gem.add_development_dependency "fuubar"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "timecop"
   gem.add_development_dependency "psych"
@@ -27,4 +29,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "actionmailer", "> 3.2.0"
   gem.add_development_dependency "sqlite3-ruby"
   gem.add_development_dependency "mock_redis"
+  gem.add_development_dependency "aws-sdk"
 end

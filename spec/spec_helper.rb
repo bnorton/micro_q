@@ -13,15 +13,32 @@ silence_warnings do
   Redis = MockRedis
 end
 
+class MyWorker; end
+
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
 
   config.order = 'default'
 
+  config.before :all do
+    GC.disable
+  end
+
   config.before :each do
     MicroQ.send :clear
     MicroQ.redis {|r| r.flushdb }
+  end
+
+  config.before :each, :aws => true do
+    require 'aws-sdk'
+  end
+
+  config.before :each, :middleware => true do
+    class WorkerClass; end
+
+    @worker = WorkerClass.new
+    @payload = { 'class' => 'WorkerClass', 'args' => [1, 2], 'queue' => 'a-queue'}
   end
 
   config.before :each, :active_record => true do
@@ -52,11 +69,8 @@ RSpec.configure do |config|
     @_db.rollback
   end
 
-  config.before :each, :middleware => true do
-    class WorkerClass; end
-
-    @worker = WorkerClass.new
-    @payload = { 'class' => 'WorkerClass', 'args' => [1, 2], 'queue' => 'a-queue'}
+  config.after :all do
+    GC.enable
   end
 end
 
