@@ -66,13 +66,14 @@ module MicroQ
         @shutdown
       end
 
-      def build_missing_fetchers
+      def build_missing_fetchers(*)
         return if self.class.shutdown?
 
         @fetchers = QUEUES_KEYS.map do |name|
           ((existing = @fetcher_map[name]) && existing.alive? && existing) ||
             MicroQ::Fetcher::Sqs.new_link(name, current_actor).tap do |fetcher|
               @fetcher_map[name] = fetcher
+              fetcher.start!
             end
         end
       end

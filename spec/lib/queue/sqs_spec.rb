@@ -3,21 +3,32 @@ require 'spec_helper'
 describe MicroQ::Queue::Sqs do
   let(:item) { { 'class' => 'MyWorker', 'args' => [4] } }
 
+  before do
+    @fetcher = mock('fetcher', :start! => true)
+    MicroQ::Fetcher::Sqs.stub(:new_link).and_return(@fetcher)
+  end
+
   describe '.new' do
     it 'should create three fetchers' do
-      MicroQ::Fetcher::Sqs.should_receive(:new_link).exactly(3)
+      MicroQ::Fetcher::Sqs.should_receive(:new_link).exactly(3).and_return(@fetcher)
 
       subject
     end
 
     it 'should send the current actor along too' do
-      MicroQ::Fetcher::Sqs.should_receive(:new_link).exactly(3).with(anything, subject)
+      MicroQ::Fetcher::Sqs.should_receive(:new_link).exactly(3).with(anything, subject).and_return(@fetcher)
+
+      subject
+    end
+
+    it 'should start the fetcher' do
+      @fetcher.should_receive(:start!)
 
       subject
     end
 
     it 'should have the fetchers' do
-      subject.fetchers.map(&:class).uniq.should == [MicroQ::Fetcher::Sqs]
+      subject.fetchers.uniq.should == [@fetcher]
     end
   end
 
@@ -52,7 +63,7 @@ describe MicroQ::Queue::Sqs do
   describe '#sync_push' do
     before do
       @fetchers = [:low, :default, :critical].collect do |name|
-        mock('MicroQ::Fetcher::Sqs : ' + name.to_s).tap do |fetcher|
+        mock('MicroQ::Fetcher::Sqs : ' + name.to_s, :start! => nil).tap do |fetcher|
           MicroQ::Fetcher::Sqs.stub(:new_link).with(name.to_s, anything).and_return(fetcher)
         end
       end

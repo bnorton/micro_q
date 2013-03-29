@@ -42,13 +42,13 @@ module MicroQ
       aws_keys = MicroQ.config.aws.try(:keys) || []
       raise 'SQS mode requires an aws :key and :secret see https://github.com/bnorton/micro_q/wiki/Named-Queues' unless aws_keys.include?(:key) && aws_keys.include?(:secret)
 
-      puts "Running micro_q in SQS mode... Hit ctl+c to stop...\n"
       MicroQ.configure do |config|
-        config.workers = @workers if @workers
-        config.queue = MicroQ::Queue::Sqs
+        config.queue = MicroQ::Queue::Sqs # set workers after since this must set workers=0 internally
+        config.workers = @workers.to_i if @workers
         config['worker_mode?'] = true
       end
 
+      puts "Running micro_q in SQS mode with #{MicroQ.config.workers} workers... Hit ctl+c to stop...\n"
       MicroQ.start
 
       sleep

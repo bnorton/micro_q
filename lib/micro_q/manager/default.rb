@@ -67,6 +67,7 @@ module MicroQ
         return if queue_only?
 
         workers.select!(&:alive?)
+        @busy.select!(&:alive?)
 
         missing_worker_count.times do
           workers << MicroQ.config.worker.new_link(current_actor)

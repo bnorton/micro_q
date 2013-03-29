@@ -177,6 +177,30 @@ describe MicroQ::Manager::Default do
         subject.workers.should == [@worker1, @new_worker2]
       end
 
+      describe 'when a busy worker has died' do
+        before do
+          subject.wrapped_object.instance_variable_set(:@busy, [@worker2])
+        end
+
+        it 'should restart the dead worker' do
+          MicroQ::Worker::Standard.should_receive(:new_link).and_return(@new_worker2)
+
+          death.call
+        end
+
+        it 'should remove the worker from the busy list' do
+          death.call
+
+          subject.wrapped_object.instance_variable_get(:@busy).should == []
+        end
+
+        it 'should have the new worker' do
+          death.call
+
+          subject.workers.should == [@worker1, @new_worker2]
+        end
+      end
+
       describe 'when in SQS mode' do
         before do
           MicroQ.config['sqs?'] = true
