@@ -39,7 +39,7 @@ end
 ###Simple
 
 ```ruby
-Called on the class invoked on an instance.
+# Called on the class invoked on an instance.
 
 MyWorker.perform_async
 MyWorker.update_async(:user_id => user.id)
