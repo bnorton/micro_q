@@ -102,9 +102,15 @@ MicroQ.configure do |config|
   config.queue = MicroQ::Queue::Sqs
   config.aws = { :key => 'YOUR KEY', :secret => 'YOUR SECRET' }
 end
+```
 
 **Note that when using the SQS Queue only the MicroQ's started via command-line will actually process messages**
 
+Start via the command line to process messages `microq`
+
+This queue also sets up thress named queues `:low`, `:default` and `:critical`
+
+```ruby
 # Then just use the queues in your workers
 class SomeWorker
   worker :queue => :critical
