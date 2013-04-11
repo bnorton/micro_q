@@ -34,6 +34,14 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
             call
           }.to raise_error(Exception, 'an exception')
         end
+
+        it 'should not push the message' do
+          MicroQ.should_not_receive(:push)
+
+          expect {
+            call
+          }.to raise_error(Exception, 'an exception')
+        end
       end
 
       describe 'when retry is enabled' do
@@ -79,12 +87,15 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
         end
 
         it 'should update the retry when time' do
-          Timecop.freeze(DateTime.now) do
-            safe(:call); @payload['retried']['when'].to_i.should == (Time.now + 15).to_i
+          @payload['retried'] = { 'count' => 1 }
 
-            Timecop.travel(100)
-            safe(:call); @payload['retried']['when'].to_i.should == (Time.now + 15).to_i
-          end
+          expect {
+            safe(:call)
+          }.to change { @payload['retried']['when'] }
+
+          expect {
+            safe(:call)
+          }.to change { @payload['retried']['when'] }
         end
 
         it 'should set the last retry time' do
@@ -105,9 +116,63 @@ describe MicroQ::Middleware::Server::Retry, :middleware => true do
 
         it 'should enqueue for the next retry time' do
           Timecop.freeze do
-            MicroQ.should_receive(:push).with(anything, hash_including('when' => (Time.now + 15).to_f))
+            MicroQ.should_receive(:push).with(anything, hash_including('when'))
 
             safe(:call)
+          end
+        end
+
+        describe 'when the message has retried 25 times' do
+          before do
+            @payload['retried'] = { 'count' => 25 }
+          end
+
+          it 'should not push the message' do
+            MicroQ.should_not_receive(:push)
+
+            expect {
+              call
+            }.to raise_error(Exception, 'an exception')
+          end
+        end
+
+        describe 'when the message should retry 10 times' do
+          before do
+            @payload['retry'] = 10
+          end
+
+          it 'should retry the message' do
+            MicroQ.should_receive(:push)
+
+            safe(:call)
+          end
+
+          describe 'when the message has retried 10 times' do
+            before do
+              @payload['retried'] = { 'count' => 10 }
+            end
+
+            it 'should not push the message' do
+              MicroQ.should_not_receive(:push)
+
+              expect {
+                call
+              }.to raise_error(Exception, 'an exception')
+            end
+
+            describe 'when the retry count is a string' do
+              before do
+                @payload['retry'] = '10'
+              end
+
+              it 'should not push the message' do
+                MicroQ.should_not_receive(:push)
+
+                expect {
+                  call
+                }.to raise_error(Exception, 'an exception')
+              end
+            end
           end
         end
       end
