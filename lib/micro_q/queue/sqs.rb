@@ -11,14 +11,14 @@ module MicroQ
       def initialize
         @lock = Mutex.new
 
-        @messages, @entries, @later = [], [], []
+        @messages, @fetchers, @entries, @later = [], [], [], []
         @fetcher_map = {}
 
         build_missing_fetchers
       end
 
-      def push(item)
-        async.sync_push(item)
+      def push(*args)
+        async.sync_push(*args)
       end
 
       def sync_push(item, options={})
@@ -26,7 +26,7 @@ module MicroQ
         item['class'] = item['class'].to_s
 
         MicroQ.middleware.client.call(item, options) do
-          args, queue_name = [item], verify_queue(item['queue'].to_s)
+          args, queue_name = [item], verify_queue(item['queue'])
 
           if (time = options['when'])
             args << time.to_f
@@ -52,8 +52,13 @@ module MicroQ
         end
       end
 
+      def finished(item)
+        queue_name = verify_queue(item['queue'])
+        @fetcher_map[queue_name].remove_message(item)
+      end
+
       def verify_queue(name)
-        QUEUES_KEYS.include?(name) ? name : 'default'
+        QUEUES_KEYS.include?(name.to_s) ? name.to_s : 'default'
       end
 
       def self.shutdown!
@@ -73,7 +78,7 @@ module MicroQ
           ((existing = @fetcher_map[name]) && existing.alive? && existing) ||
             MicroQ::Fetcher::Sqs.new_link(name, current_actor).tap do |fetcher|
               @fetcher_map[name] = fetcher
-              fetcher.start!
+              fetcher.start! unless MicroQ.queue_only?
             end
         end
       end

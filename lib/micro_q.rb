@@ -33,6 +33,10 @@ module MicroQ
     manager.queue.push(*args)
   end
 
+  def self.queue_only?
+    @queue_only ||= MicroQ.config.sqs? && !MicroQ.config.worker_mode?
+  end
+
   private
 
   def self.manager
@@ -44,7 +48,7 @@ module MicroQ
   end
 
   def self.clear
-    @config = @manager = nil
+    @config = @manager = @queue_only = nil
   end
 end
 

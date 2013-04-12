@@ -35,6 +35,13 @@ module MicroQ
       client.send_message(attrs)[:message_id]
     end
 
+    def messages_delete(message)
+      client.delete_message(
+        :queue_url => message['sqs_queue'],
+        :receipt_handle => message['sqs_handle']
+      )
+    end
+
     private
 
     def client

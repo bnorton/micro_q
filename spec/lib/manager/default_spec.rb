@@ -83,6 +83,13 @@ describe MicroQ::Manager::Default do
         subject.start
       end
 
+      it 'should add the items to the currently working items' do
+        subject.start
+
+        subject.current[@worker1].should == @other_item
+        subject.current[@worker2].should == @item
+      end
+
       describe 'when the manager is in SQS mode' do
         before do
           MicroQ.config['sqs?'] = true
@@ -118,10 +125,12 @@ describe MicroQ::Manager::Default do
   end
 
   describe '#reinitialize' do
-    let(:death) { -> { subject.reinitialize } }
+    let(:current) { subject.current }
+
+    let(:death) { -> { subject.reinitialize(@worker2, Exception.new('worker2 crashed')) } }
 
     before do
-      @queue = mock(MicroQ::Queue::Default, :alive? => true, :dequeue => [])
+      @queue = mock(MicroQ::Queue::Default, :alive? => true, :dequeue => [], :finished! => nil, :respond_to? => true)
       MicroQ::Queue::Default.stub(:new_link).and_return(@queue)
 
       @worker1 = mock(MicroQ::Worker::Standard, :alive? => true, :perform! => nil)
@@ -178,7 +187,10 @@ describe MicroQ::Manager::Default do
       end
 
       describe 'when a busy worker has died' do
+        let(:message) { mock('message') }
+
         before do
+          current[@worker2] = message
           subject.wrapped_object.instance_variable_set(:@busy, [@worker2])
         end
 
@@ -199,6 +211,31 @@ describe MicroQ::Manager::Default do
 
           subject.workers.should == [@worker1, @new_worker2]
         end
+
+        it 'should remove the worker from current' do
+          current.should have_key(@worker2)
+          death.call
+
+          current.should_not have_key(@worker2)
+        end
+
+        it 'should finish the message with the queue' do
+          @queue.should_receive(:finished!).with(message)
+
+          death.call
+        end
+
+        describe 'when the queue does not respond to finished' do
+          before do
+            @queue.stub(:respond_to?).with(:finished).and_return(false)
+          end
+
+          it 'should not call it' do
+            @queue.should_not_receive(:finished!)
+
+            death.call
+          end
+        end
       end
 
       describe 'when in SQS mode' do
@@ -212,6 +249,59 @@ describe MicroQ::Manager::Default do
           subject.queue.should == @queue
           subject.workers.should == [@worker1, @worker2]
         end
+      end
+    end
+  end
+
+  describe '#work_done' do
+    let(:message) { mock('message') }
+    let(:current) { subject.current }
+
+    let(:work_done) { subject.work_done(@worker) }
+
+    before do
+      @worker = mock('worker')
+      @queue = mock(MicroQ::Queue::Default, :respond_to? => true, :finished! => nil)
+      MicroQ::Queue::Default.stub(:new_link).and_return(@queue)
+
+      subject.wrapped_object.instance_variable_set(:@busy, [@worker])
+      current[@worker] = message
+    end
+
+    it 'should remove the worker from busy' do
+      work_done
+
+      subject.busy.should == []
+    end
+
+    it 'should add the worker to workers' do
+      work_done
+
+      subject.workers.should include(@worker)
+    end
+
+    it 'should remove the worker from current' do
+      current.should have_key(@worker)
+      work_done
+
+      current.should_not have_key(@worker)
+    end
+
+    it 'should finish the message with the queue' do
+      @queue.should_receive(:finished!).with(message)
+
+      work_done
+    end
+
+    describe 'when the queue does not respond to finished' do
+      before do
+        @queue.stub(:respond_to?).with(:finished).and_return(false)
+      end
+
+      it 'should not call it' do
+        @queue.should_not_receive(:finished!)
+
+        work_done
       end
     end
   end

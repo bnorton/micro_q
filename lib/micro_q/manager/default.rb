@@ -20,19 +20,16 @@ module MicroQ
       # Invoke this when the Queue or Worker pool dies
       exit_handler :reinitialize
 
-      attr_reader :queue, :workers
+      attr_reader :queue, :workers, :busy, :current
 
       def start
-        return if queue_only?
+        return if MicroQ.queue_only?
 
         count = workers.size
 
         if (messages = queue.dequeue(count)).any?
           messages.each do |message|
-            worker = workers.pop
-            @busy << worker
-
-            worker.perform!(message)
+            work_on(message)
           end
         end
 
@@ -40,22 +37,41 @@ module MicroQ
       end
 
       def work_done(worker)
-        @busy.delete(worker)
+        message = current.delete(worker)
+        queue.finished!(message) if queue.respond_to?(:finished)
+
+        busy.delete(worker)
         workers.push(worker)
+      end
+
+      def work_on(message)
+        worker = workers.pop
+        busy << worker
+
+        current[worker] = message
+
+        worker.perform!(message)
       end
 
       ##
       # Handle init/death of the Queue or the Worker pool
+      # When a worker dies the args are (#<Actor ...>, #<Exception>)
       #
-      def reinitialize(*)
+      def reinitialize(*args)
         kill_all and return if self.class.shutdown?
 
-        unless @queue && @queue.alive?
+        unless @queue && queue.alive?
           @queue = MicroQ.config.queue.new_link
         end
 
         @busy ||= []
         @workers ||= []
+        @current ||= {}
+
+        if args.any?
+          message = current.delete(args.first)
+          queue.finished!(message) if queue.respond_to?(:finished)
+        end
 
         build_missing_workers
       end
@@ -64,10 +80,10 @@ module MicroQ
 
       # Don't shrink the pool if the config changes
       def build_missing_workers
-        return if queue_only?
+        return if MicroQ.queue_only?
 
         workers.select!(&:alive?)
-        @busy.select!(&:alive?)
+        busy.select!(&:alive?)
 
         missing_worker_count.times do
           workers << MicroQ.config.worker.new_link(current_actor)
@@ -75,15 +91,11 @@ module MicroQ
       end
 
       def missing_worker_count
-        [MicroQ.config.workers - (workers.size + @busy.size), 0].max
+        [MicroQ.config.workers - (workers.size + busy.size), 0].max
       end
 
       def kill_all
-        (@workers + @busy).each {|w| w.terminate if w.alive? }
-      end
-
-      def queue_only?
-        @queue_only ||= MicroQ.config.sqs? && !MicroQ.config.worker_mode?
+        (workers + busy).each {|w| w.terminate if w.alive? }
       end
 
       def self.shutdown?

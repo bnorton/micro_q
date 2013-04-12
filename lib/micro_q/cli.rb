@@ -51,6 +51,8 @@ module MicroQ
         require @require
       end
 
+      Rails.application.eager_load!
+
       aws_keys = MicroQ.config.aws.try(:keys) || []
 
       queue = if @mode == 'sqs'

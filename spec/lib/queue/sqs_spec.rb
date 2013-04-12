@@ -30,6 +30,18 @@ describe MicroQ::Queue::Sqs do
     it 'should have the fetchers' do
       subject.fetchers.uniq.should == [@fetcher]
     end
+
+    describe 'when we are in queue only mode' do
+      before do
+        MicroQ.stub(:queue_only? => true)
+      end
+
+      it 'should not start the fetcher' do
+        @fetcher.should_not_receive(:start!)
+
+        subject
+      end
+    end
   end
 
   describe '#receive_messages' do
@@ -200,6 +212,30 @@ describe MicroQ::Queue::Sqs do
         subject.dequeue.should == []
 
         subject.messages.should == []
+      end
+    end
+  end
+
+  describe '#finished' do
+    before do
+      @fetchers = [:low, :default, :critical].collect do |name|
+        mock('MicroQ::Fetcher::Sqs : ' + name.to_s, :start! => nil).tap do |fetcher|
+          MicroQ::Fetcher::Sqs.stub(:new_link).with(name.to_s, anything).and_return(fetcher)
+        end
+      end
+    end
+
+    [:low, :default, :critical].each_with_index do |name, i|
+      describe "when the message has a queue named #{name}" do
+        before do
+          item['queue'] = name
+        end
+
+        it 'should create the message on the right queue' do
+          @fetchers[i].should_receive(:remove_message).with(item)
+
+          subject.finished(item)
+        end
       end
     end
   end

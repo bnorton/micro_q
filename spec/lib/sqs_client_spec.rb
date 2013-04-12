@@ -163,4 +163,27 @@ describe MicroQ::SqsClient, :aws => true do
       end
     end
   end
+
+  describe '#messages_delete' do
+    let(:message) { { 'sqs_handle' => 'handle-123', 'sqs_queue' => 'http://654.queue' } }
+    let(:messages_delete) { subject.messages_delete(message) }
+
+    it 'should delete the message' do
+      @client.should_receive(:delete_message)
+
+      messages_delete
+    end
+
+    it 'should have the queue url' do
+      @client.should_receive(:delete_message).with(hash_including(:queue_url => 'http://654.queue'))
+
+      messages_delete
+    end
+
+    it 'should have the message handle' do
+      @client.should_receive(:delete_message).with(hash_including(:receipt_handle => 'handle-123'))
+
+      messages_delete
+    end
+  end
 end

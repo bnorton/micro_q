@@ -78,4 +78,15 @@ describe MicroQ::Fetcher::Sqs do
       end
     end
   end
+
+  describe '#remove_message' do
+    let(:message) { {'class' => 'FooBar'} }
+    let(:remove_message) { subject.remove_message(message) }
+
+    it 'should create the message' do
+      @client.should_receive(:messages_delete).with(message)
+
+      remove_message
+    end
+  end
 end
