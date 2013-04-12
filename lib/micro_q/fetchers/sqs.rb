@@ -23,8 +23,13 @@ module MicroQ
         after(SHORT_DELAY) { start }
       end
 
+      ##
+      # Add the message to the sqs queue
+      # Respect the maximum amount of time that a message can
+      # be delayed (900 seconds).
+      #
       def add_message(message, time=nil)
-        message['run_at'] = time.to_f if time
+        message['run_at'] = [time.to_f, (Time.now + 900).to_i].min if time
 
         defer do
           client.messages_create(message)

@@ -76,6 +76,16 @@ describe MicroQ::Fetcher::Sqs do
 
         add_message
       end
+
+      describe 'when the time is too far in the future' do
+        let(:add_message) { subject.add_message(message, Time.now.to_i + 1000) }
+
+        it 'should truncate to 900 seconds from now' do
+          @client.should_receive(:messages_create).with(message.merge('run_at' => Time.now.to_i + 900))
+
+          add_message
+        end
+      end
     end
   end
 
